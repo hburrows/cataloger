@@ -10,7 +10,8 @@ from handlers.classes import ClassesHandler
 from handlers.properties import PropertiesHandler
 
 from handlers import (
-  userentry
+  userentry,
+  images
 )
 
 '''
@@ -31,10 +32,11 @@ classes_handler = CORSResource(ClassesHandler)
 properties_handler = CORSResource(PropertiesHandler)
 user_entry_handler = CORSResource(userentry.UserEntryHandler, **ad)
 
+user_image_handler = CORSResource(images.UserImagesHandler, **ad)
+
 '''
 user_service_handler = CORSResource(UserServiceHandler, **ad)
 user_activity_handler = CORSResource(UserActivityHandler, **ad)
-user_image_handler = CORSResource(UserImageHandler, **ad)
 '''
 
 # status view handler
@@ -64,6 +66,8 @@ urlpatterns += patterns('api.views.user',
 
   url(r'^users/(?P<user_id>self|\d+)/entries/$', user_entry_handler, { 'emitter_format': 'json' }),
 
+  url(r'^users/(?P<user_id>self|\d+)/images/$', user_image_handler, { 'emitter_format': 'json' }),
+
 '''
   url(r'^users/(?P<user_id>self|\d+)/services/$', user_service_handler, { 'emitter_format': 'json' }),
 
@@ -76,6 +80,5 @@ urlpatterns += patterns('api.views.user',
 
   url(r'^users/(?P<user_id>self|\d+)/entries/(?P<entry_id>\d+)/$', user_entry_handler, { 'emitter_format': 'json' }),
 
-  url(r'^users/(?P<user_id>self|\d+)/entries/(?P<entry_id>\d+)/images/$', user_image_handler, { 'emitter_format': 'json' }),
 '''  
 )

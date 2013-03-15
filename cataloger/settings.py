@@ -55,7 +55,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'images')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -162,11 +162,14 @@ LOGGING = {
     }
 }
 
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = '1GQHWPDN25PQVJ88CR82'
+AWS_SECRET_ACCESS_KEY = 'gXpUJGYuESg+US3DPv+1IdkoTAX/6FnMqJi6CXgG'
+#AWS_STORAGE_BUCKET_NAME = 'images.catalogit.howardburrows.com'
+
 # for storing and serving static content from AWS
 if not DEBUG:
 	AWS_STORAGE_BUCKET_NAME = 'static.catalogit.howardburrows.com'
-	AWS_ACCESS_KEY_ID = '1GQHWPDN25PQVJ88CR82'
-	AWS_SECRET_ACCESS_KEY = 'gXpUJGYuESg+US3DPv+1IdkoTAX/6FnMqJi6CXgG'
 	STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 	S3_URL = 'https://s3.amazonaws.com/{0}/'.format(AWS_STORAGE_BUCKET_NAME)
 	STATIC_URL = S3_URL
