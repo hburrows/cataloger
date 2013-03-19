@@ -41,8 +41,8 @@ class ClassesHandler(BaseHandler):
        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
        PREFIX sg: <http://example.com/rdf/schemas/> \
        SELECT ?class \
-       WHERE { { ?class rdf:type owl:Class . ?class sg:isUsedBy "catalogit" OPTIONAL { ?class rdfs:label ?label } } \
-       UNION { ?class rdf:type rdfs:Class . ?class sg:isUsedBy "catalogit" OPTIONAL { ?class rdfs:label ?label } } } \
+       WHERE { { ?class rdf:type owl:Class . ?class sg:isUsedFor "primary" OPTIONAL { ?class rdfs:label ?label } } \
+       UNION { ?class rdf:type rdfs:Class . ?class sg:isUsedFor "primary" OPTIONAL { ?class rdfs:label ?label } } } \
        ORDER BY ?label')
 
     classes = []
