@@ -63,13 +63,19 @@ class PropertiesHandler(BaseHandler):
       for prop in rs:
   
         l = g.preferredLabel(prop[0])
+        
+        comment = g.comment(prop[0])
+        if not comment:
+          comments = g.objects(prop[0], URIRef('http://www.w3.org/2000/01/rdf-schema#comment'))
+          comment = comments[0] if len(comments) > 0 else None
+          
   
         properties.append({
           'property': prop[0],
           'label': l[0][1] if len(l) > 0 else '',
           'range': prop[2],
           'type': prop[3],
-          'comment': g.comment(prop[0])
+          'comment': comment
         })
 
       l = g.preferredLabel(uriRef)

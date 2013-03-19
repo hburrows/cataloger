@@ -79,7 +79,6 @@ dcDateSubmitted = dcElementNS['dateSubmitted']
 
 foafAgent = foafNS['Agent']
 
-
 collectableClass = schemaNS['Collectable']
 basketClass = schemaNS['Basket']
 rugClass = schemaNS['Rug']
