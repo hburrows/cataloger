@@ -42,11 +42,23 @@ class PropertiesHandler(BaseHandler):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
         PREFIX owl: <http://www.w3.org/2002/07/owl#> \
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
-        SELECT ?property ?label ?range \
-        WHERE { { ?property rdfs:domain <' + str(uriRef) + '> OPTIONAL { ?property rdfs:label ?label } OPTIONAL { ?property rdfs:range ?range } } \
-        UNION { ?property rdfs:domain <' + str(uriRef) + '> OPTIONAL { ?property rdfs:label ?label } OPTIONAL {?property rdfs:range ?range } } } \
-        ORDER BY ?label')
-  
+        SELECT ?property ?label ?type ?range \
+        WHERE { \
+                { ?property rdfs:domain <' + str(uriRef) + '> \
+                  OPTIONAL { ?property rdfs:label ?label } \
+                  OPTIONAL { ?property rdfs:range ?range } \
+                  OPTIONAL { ?property rdf:type ?type } \
+                  FILTER(STRSTARTS(STR(?type), "http://www.w3.org/2002/07/owl#ObjectProperty")) \
+                } \
+                UNION \
+                { ?property rdfs:domain <' + str(uriRef) + '> \
+                  OPTIONAL { ?property rdfs:label ?label } \
+                  OPTIONAL { ?property rdfs:range ?range } \
+                  OPTIONAL { ?property rdf:type ?type } \
+                  FILTER(STRSTARTS(STR(?type), "http://www.w3.org/2002/07/owl#DatatypeProperty")) \
+                } \
+              } \
+        ORDER BY ?label')  
       properties = []
       for prop in rs:
   
@@ -56,6 +68,7 @@ class PropertiesHandler(BaseHandler):
           'property': prop[0],
           'label': l[0][1] if len(l) > 0 else '',
           'range': prop[2],
+          'type': prop[3],
           'comment': g.comment(prop[0])
         })
 

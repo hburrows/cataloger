@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:ns1="http://www.w3.org/2002/07/owl#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Rug">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Doll">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/title">
+    <rdfs:domain rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://purl.org/dc/elements/1.1/description">
+    <rdfs:domain rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </rdf:Description>
+  
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/CarvedStone">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Mask">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Pipe">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  
+  <ns1:DatatypeProperty rdf:about="http://example.com/rdf/_shared/valuation.value">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchemastring"/>
+    <rdfs:domain>
+      <ns1:ObjectProperty rdf:about="http://example.com/rdf/_shared/valuationOn">
+        <rdfs:range rdf:resource="http://example.com/rdf/_shared/Valuation"/>
+        <rdfs:domain rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+      </ns1:ObjectProperty>
+    </rdfs:domain>
+  </ns1:DatatypeProperty>
+  
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Basket">
+    <rdfs:subFlassOf rdf:resource="http://example.com/rdf/_shared/Collectable"/>
+  </ns1:Class>
+  
+  <ns1:DatatypeProperty rdf:about="http://example.com/rdf/_shared/valuation.date">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchemastring"/>
+    <rdfs:domain rdf:resource="http://example.com/rdf/_shared/valuationOn"/>
+  </ns1:DatatypeProperty>
+  
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Valuation"/>
+
+  <ns1:Class rdf:about="http://example.com/rdf/_shared/Collectable"/>
+
+</rdf:RDF>

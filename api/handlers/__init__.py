@@ -5,6 +5,8 @@ BASE_GRAPH_URI = "http://example.com/rdf/"
 
 SCHEMA_GRAPH_URI = BASE_GRAPH_URI + 'schemas/'
 
+USER_GRAPH_URI = BASE_GRAPH_URI + 'users/{userId}#'
+
 MYSQL_HOST = 'localhost'
 POSTGRES_HOST = '/tmp/'
 USER = 'howard'
