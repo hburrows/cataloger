@@ -66,7 +66,7 @@ class PropertiesHandler(BaseHandler):
         
         comment = g.comment(prop[0])
         if not comment:
-          comments = g.objects(prop[0], URIRef('http://www.w3.org/2000/01/rdf-schema#comment'))
+          comments = list(g.objects(prop[0], URIRef('http://www.w3.org/2000/01/rdf-schema#comment')))
           comment = comments[0] if len(comments) > 0 else None
           
   
