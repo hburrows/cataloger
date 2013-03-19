@@ -5,7 +5,6 @@ Created on Mar 14, 2013
 '''
 
 import json
-import logging
 
 from django.shortcuts import get_object_or_404
 

@@ -5,9 +5,8 @@ Created on Mar 8, 2013
 '''
 
 from piston.handler import BaseHandler
-from piston.utils import rc
 
-from rdflib import ConjunctiveGraph, URIRef, Graph, Namespace
+from rdflib import ConjunctiveGraph, URIRef, Graph
 from rdflib.store import VALID_STORE
 from rdflib import RDFS
 
@@ -42,7 +41,7 @@ class PropertiesHandler(BaseHandler):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
         PREFIX owl: <http://www.w3.org/2002/07/owl#> \
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \
-        SELECT ?property ?label ?type ?range \
+        SELECT ?property ?label ?range ?type \
         WHERE { \
                 { ?property rdfs:domain <' + str(uriRef) + '> \
                   OPTIONAL { ?property rdfs:label ?label } \

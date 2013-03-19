@@ -11,7 +11,6 @@ from rdflib import ConjunctiveGraph, Graph, URIRef
 from rdflib.store import VALID_STORE
 
 import urllib
-from base64 import urlsafe_b64encode
 from . import BASE_GRAPH_URI, SCHEMA_GRAPH_URI, _get_postgresql_config_string
 
 
