@@ -50,6 +50,7 @@ sg.parse('http://vocab.org/review/terms.rdf')
 # declare namespaces
 dcElementNS = Namespace('http://purl.org/dc/elements/1.1/')
 dcTermNS = Namespace('http://purl.org/dc/terms/')
+dcDCMINS = Namespace('http://purl.org/dc/dcmitype/')
 
 foafNS = Namespace('http://xmlns.com/foaf/0.1/')
 
@@ -63,6 +64,9 @@ owlObjectProperty = OWL['ObjectProperty']
 owlDatatypeProperty = OWL['DatatypeProperty']
 
 rdfType = RDF['type']
+rdfBag = RDF['Bag']
+rdfSeq = RDF['Seq']
+rdfAlt = RDF['Alt']
 
 rdfsSubClassOf = RDFS['subClassOf']
 rdfsDomain = RDFS['domain']
@@ -77,9 +81,17 @@ dcDescription = dcElementNS['description']
 dcCreator = dcElementNS['creator']
 dcDateSubmitted = dcElementNS['dateSubmitted']
 
+dcImage = dcDCMINS['Image']
+dcMovingImage = dcDCMINS['MovingImage']
+dcStillImage = dcDCMINS['StillImage']
+dcSound = dcDCMINS['Sound']
+dcText = dcDCMINS['Text']
+cdInteractiveResource = dcDCMINS['InteractiveResource']
+
 foafAgent = foafNS['Agent']
 
-collectableClass = schemaNS['Collectable']
+EntryClass = schemaNS['Entry']
+CollectableClass = schemaNS['Collectable']
 basketClass = schemaNS['Basket']
 rugClass = schemaNS['Rug']
 maskClass = schemaNS['Mask']
@@ -92,10 +104,12 @@ valuationClass = schemaNS['Valuation']
 # define properties
 isUsedFor = schemaNS['isUsedFor']
 
+media = schemaNS['media']
 aquirePrice = schemaNS['aquireDate']
 aquireDate = schemaNS['aquirePrice']
 valuation = schemaNS['valuationOn']
 tags = schemaNS['tags']
+tagContainer = schemaNS['tagContainer']
 valuationValue = schemaNS['valuation.value']
 valuationDate = schemaNS['valuation.date']
 valuationAgent = schemaNS['valuation.agent']
@@ -107,45 +121,74 @@ usedForSecondary = Literal('secondary')
 
 collectableSchema = [
 
-  # class declarations
-  (collectableClass, rdfType, owlClass),
-  #(collectableClass, rdfsSubClassOf, OWL['Thing']),
-  (collectableClass, rdfsLabel, Literal('Collectable')),
-  (collectableClass, isDefinedBy, catalogitLiteral),
-  (collectableClass, isUsedFor, usedForPrimary),
+  # utility class declarations
+  #
+  (schemaNS['TagContainer'], rdfType, owlClass),
+  (schemaNS['TagContainer'], rdfsSubClassOf, RDF['Bag']),
+  (schemaNS['TagContainer'], rdfsLabel, Literal('Tag Container')),
+  (schemaNS['TagContainer'], RDFS['comment'], Literal('A container of arbitrary xsd:string literals intended to be used for keywords of a user\'s choosing that identify, classify, and/or characterize items.')),  
+  (schemaNS['TagContainer'], isDefinedBy, catalogitLiteral),
+  (schemaNS['TagContainer'], isUsedFor, usedForSecondary),
+
+  (schemaNS['MediaContainer'], rdfType, owlClass),
+  (schemaNS['MediaContainer'], rdfsSubClassOf, RDF['Seq']),
+  (schemaNS['MediaContainer'], rdfsLabel, Literal('Media Container')),
+  (schemaNS['MediaContainer'], RDFS['comment'], Literal('A container for storing different types of media associated with an item.')),  
+  (schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
+  (schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
+
+  
+  # cit class declarations
+  #
+  (EntryClass, rdfType, owlClass),
+  #(EntryClass, rdfsSubClassOf, OWL['Thing']),  
+  (EntryClass, rdfsLabel, Literal('Entry')),
+  (EntryClass, isDefinedBy, catalogitLiteral),
+
+  (media, rdfType, owlObjectProperty),
+  (media, rdfsDomain, EntryClass),
+  (media, rdfsRange, schemaNS['MediaContainer']),
+  (media, rdfsLabel, Literal('Media Container')),
+  (media, RDFS['comment'], Literal('The set of media (images, videos, sounds, documents, etc.) associated with the item.')),
+
+  (CollectableClass, rdfType, owlClass),
+  (CollectableClass, rdfsSubClassOf, EntryClass),
+  (CollectableClass, rdfsLabel, Literal('Collectable')),
+  (CollectableClass, isDefinedBy, catalogitLiteral),
+  (CollectableClass, isUsedFor, usedForPrimary),
 
   (basketClass, rdfType, owlClass),
   (basketClass, rdfsLabel, Literal('Basket')),
-  (basketClass, rdfsSubClassOf, collectableClass),
+  (basketClass, rdfsSubClassOf, CollectableClass),
   (basketClass, isDefinedBy, catalogitLiteral),
   (basketClass, isUsedFor, usedForPrimary),
 
   (rugClass, rdfType, owlClass),
-  (rugClass, rdfsSubClassOf, collectableClass),
+  (rugClass, rdfsSubClassOf, CollectableClass),
   (rugClass, rdfsLabel, Literal('Rug')),
   (rugClass, isDefinedBy, catalogitLiteral),
   (rugClass, isUsedFor, usedForPrimary),
 
   (maskClass, rdfType, owlClass),
-  (maskClass, rdfsSubClassOf, collectableClass),
+  (maskClass, rdfsSubClassOf, CollectableClass),
   (maskClass, rdfsLabel, Literal('Mask')),
   (maskClass, isDefinedBy, catalogitLiteral),
   (maskClass, isUsedFor, usedForPrimary),
 
   (dollClass, rdfType, owlClass),
-  (dollClass, rdfsSubClassOf, collectableClass),
+  (dollClass, rdfsSubClassOf, CollectableClass),
   (dollClass, rdfsLabel, Literal('Doll')),
   (dollClass, isDefinedBy, catalogitLiteral),
   (dollClass, isUsedFor, usedForPrimary),
 
   (carvedStoneClass, rdfType, owlClass),
-  (carvedStoneClass, rdfsSubClassOf, collectableClass),
+  (carvedStoneClass, rdfsSubClassOf, CollectableClass),
   (carvedStoneClass, rdfsLabel, Literal('Carved Stone')),
   (carvedStoneClass, isDefinedBy, catalogitLiteral),
   (carvedStoneClass, isUsedFor, usedForPrimary),
 
   (pipeClass, rdfType, owlClass),
-  (pipeClass, rdfsSubClassOf, collectableClass),
+  (pipeClass, rdfsSubClassOf, CollectableClass),
   (pipeClass, rdfsLabel, Literal('Pipe')),
   (pipeClass, isDefinedBy, catalogitLiteral),
   (pipeClass, isUsedFor, usedForPrimary),
@@ -159,36 +202,36 @@ collectableSchema = [
   (isUsedFor, rdfsDomain, owlClass),
 
   # properties of collectable
-  (dcTitle, rdfsDomain, collectableClass),
-  (dcDescription, rdfsDomain, collectableClass),
+  (dcTitle, rdfsDomain, CollectableClass),
+  (dcDescription, rdfsDomain, CollectableClass),
 
   (aquirePrice, rdfType, owlDatatypeProperty),
-  (aquirePrice, rdfsDomain, collectableClass),
-  (aquirePrice, rdfsRange, xsdString),
+  (aquirePrice, rdfsDomain, CollectableClass),
+  (aquirePrice, rdfsRange, XSD['decimal']),
   (aquirePrice, rdfsLabel, Literal('Acquire Price')),
   (aquirePrice, RDFS['comment'], Literal('Cost to acquire the item.')),
 
   (aquireDate, rdfType, owlDatatypeProperty),
-  (aquireDate, rdfsDomain, collectableClass),
+  (aquireDate, rdfsDomain, CollectableClass),
   (aquireDate, rdfsRange, XSD['date']),
   (aquireDate, rdfsLabel, Literal('Acquire Date')),
   (aquireDate, RDFS['comment'], Literal('Date the item was acquired.')),
 
-  (tags, rdfType, owlDatatypeProperty),
-  (tags, rdfsDomain, collectableClass),
-  (tags, rdfsRange, xsdString),
-  (tags, rdfsLabel, Literal('Tags')),
-  (tags, RDFS['comment'], Literal('Keywords that identify, classify, characterize the item.')),
-
+  (tagContainer, rdfType, owlObjectProperty),
+  (tagContainer, rdfsDomain, CollectableClass),
+  (tagContainer, rdfsRange, schemaNS['TagContainer']),
+  (tagContainer, rdfsLabel, Literal('Tags')),
+  (tagContainer, RDFS['comment'], Literal('A list of keywords of your choosing that you use to identify, classify, characterize items.')),
+  
   (valuation, rdfType, owlObjectProperty),
-  (valuation, rdfsDomain, collectableClass),
+  (valuation, rdfsDomain, CollectableClass),
   (valuation, rdfsRange, valuationClass),
   (valuation, rdfsLabel, Literal('Valuation')),
   (valuation, RDFS['comment'], Literal('Value of the item on a certain date.')),
 
   (valuationValue, rdfType, owlDatatypeProperty),
   (valuationValue, rdfsDomain, valuation),
-  (valuationValue, rdfsRange, xsdString),
+  (valuationValue, rdfsRange, XSD['decimal']),
   (valuationValue, rdfsLabel, Literal('Value')),
   (valuationValue, RDFS['comment'], Literal('Real or estimated value of item.')),
   

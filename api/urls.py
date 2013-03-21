@@ -65,6 +65,7 @@ urlpatterns += patterns('api.views.user',
   url(r'^classes/(?P<class_id>\S+)/$', properties_handler, { 'emitter_format': 'json' }),
 
   url(r'^users/(?P<user_id>self|\d+)/entries/$', user_entry_handler, { 'emitter_format': 'json' }),
+  url(r'^users/(?P<user_id>self|\d+)/entries/(?P<entry_id>\S+)/$', user_entry_handler, { 'emitter_format': 'json' }),
 
   url(r'^users/(?P<user_id>self|\d+)/images/$', user_image_handler, { 'emitter_format': 'json' }),
 

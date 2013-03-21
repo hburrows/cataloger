@@ -8,12 +8,39 @@ from piston.handler import BaseHandler
 
 from rdflib import ConjunctiveGraph, URIRef, Graph
 from rdflib.store import VALID_STORE
-from rdflib import RDFS
+from rdflib import RDFS, OWL
 
 import urllib
 
 from . import BASE_GRAPH_URI, SCHEMA_GRAPH_URI, _get_postgresql_config_string
 
+def getAncestors(g, classUriRef, ancestors):
+  if not classUriRef:
+    return False
+
+  for a in g.objects(classUriRef, RDFS['subClassOf']):
+    ancestors.append(str(a))
+    getAncestors(g, a, ancestors)
+
+  return
+
+def _isSubClassOf(g, classUriRef, ancestorUriRef):
+  for a in g.objects(classUriRef, RDFS['subClassOf']):
+    if a == ancestorUriRef:
+      return True
+    else:
+      if _isSubClassOf(g, a, ancestorUriRef):
+        return True
+
+  return False
+
+def isSubClassOf(g, classUriRef, ancestorUriRef):
+  if not classUriRef:
+    return False
+  if classUriRef == ancestorUriRef:
+    return True
+  else:
+    return _isSubClassOf(g, classUriRef, ancestorUriRef)
 
 class PropertiesHandler(BaseHandler):
 
@@ -61,27 +88,35 @@ class PropertiesHandler(BaseHandler):
       properties = []
       for prop in rs:
   
+        # get the labels
         l = g.preferredLabel(prop[0])
         
+        # get the comment
         comment = g.comment(prop[0])
         if not comment:
           comments = list(g.objects(prop[0], URIRef('http://www.w3.org/2000/01/rdf-schema#comment')))
           comment = comments[0] if len(comments) > 0 else None
           
-  
+        # get a list of all my ancestors (that which the property is a subclass of).  Only do
+        # this for "object" type properties for performance reasons
+        ancestors = []
+        if prop[3] == URIRef(OWL['ObjectProperty']):
+          getAncestors(g, prop[2], ancestors)
+
         properties.append({
           'property': prop[0],
           'label': l[0][1] if len(l) > 0 else '',
           'range': prop[2],
           'type': prop[3],
-          'comment': comment
+          'comment': comment,
+          'ancestors': ancestors
         })
 
       l = g.preferredLabel(uriRef)
       
       return {
         'name': l[0][1] if len(l) > 0 else '',
-        'class': urllib.quote(uriRef),
+        'classUri': urllib.quote(uriRef),
         'comment': g.comment(uriRef),
         'properties': properties }
 
