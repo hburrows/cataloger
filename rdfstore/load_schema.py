@@ -4,29 +4,22 @@ Created on Mar 6, 2013
 @author: howard
 '''
 
-from rdflib import Namespace, Literal, URIRef, Graph, ConjunctiveGraph
-from rdflib.store import VALID_STORE
+from rdflib import Namespace, Literal, URIRef, Graph, ConjunctiveGraph, plugin
+from rdflib.store import Store, VALID_STORE
 
 from rdflib import RDF, RDFS, OWL, XSD
 
-from globals import DEFAULT_GRAPH_URI, SCHEMA_GRAPH_URI
-
-from globals import _get_postgresql_config_string
+from api import BASE_GRAPH_URI, SCHEMA_GRAPH_URI, DATABASE_STORE, _get_db_config_string
 
 
-citg = ConjunctiveGraph('PostgreSQL', identifier=URIRef(DEFAULT_GRAPH_URI))
-rt = citg.open(_get_postgresql_config_string(), create=False)
+store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
 
-#from globals import _get_mysql_config_string
-#citg = ConjunctiveGraph('MySQL', identifier=URIRef(DEFAULT_GRAPH_URI))
-#rt = citg.open(_get_mysql_config_string(), create=False)
-
+rt = store.open(_get_db_config_string(), create=False)
 assert rt == VALID_STORE,"The underlying store is corrupted"
+        
+citg = ConjunctiveGraph(store, identifier=URIRef(BASE_GRAPH_URI))
 
-
-
-sg = Graph(citg.store, identifier=URIRef(SCHEMA_GRAPH_URI))
-
+sg = Graph(store, identifier=URIRef(SCHEMA_GRAPH_URI))
 
 
 
@@ -41,11 +34,13 @@ sg.parse('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
 sg.parse('http://purl.org/dc/elements/1.1/')
 sg.parse('http://purl.org/dc/terms/')
 
-# FOAF
-sg.parse('http://xmlns.com/foaf/spec/20100809.rdf')
 
-# review vocabulary
-sg.parse('http://vocab.org/review/terms.rdf')
+# FOAF
+sg.parse('http://xmlns.com/foaf/0.1/')
+
+
+sg.commit()
+
 
 # declare namespaces
 dcElementNS = Namespace('http://purl.org/dc/elements/1.1/')
@@ -103,8 +98,13 @@ valuationClass = schemaNS['Valuation']
 
 # define properties
 isUsedFor = schemaNS['isUsedFor']
+usedForPrimary = Literal('primary')
+usedForSecondary = Literal('secondary')
 
 media = schemaNS['media']
+createTime = schemaNS['createTime']
+updateTime = schemaNS['updateTime']
+
 aquirePrice = schemaNS['aquireDate']
 aquireDate = schemaNS['aquirePrice']
 valuation = schemaNS['valuationOn']
@@ -116,8 +116,8 @@ valuationAgent = schemaNS['valuation.agent']
 
 catalogitLiteral = Literal('catalogit')
 
-usedForPrimary = Literal('primary')
-usedForSecondary = Literal('secondary')
+displayOrder = schemaNS['displayOrder']
+userEditable = schemaNS['userEditable']
 
 collectableSchema = [
 
@@ -130,12 +130,18 @@ collectableSchema = [
   (schemaNS['TagContainer'], isDefinedBy, catalogitLiteral),
   (schemaNS['TagContainer'], isUsedFor, usedForSecondary),
 
+
   (schemaNS['MediaContainer'], rdfType, owlClass),
   (schemaNS['MediaContainer'], rdfsSubClassOf, RDF['Seq']),
   (schemaNS['MediaContainer'], rdfsLabel, Literal('Media Container')),
   (schemaNS['MediaContainer'], RDFS['comment'], Literal('A container for storing different types of media associated with an item.')),  
   (schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
   (schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
+
+
+  (displayOrder, rdfType, owlDatatypeProperty),
+  (displayOrder, rdfsDomain, owlDatatypeProperty),
+  (displayOrder, rdfsRange, XSD['integer']),
 
   
   # cit class declarations
@@ -145,11 +151,55 @@ collectableSchema = [
   (EntryClass, rdfsLabel, Literal('Entry')),
   (EntryClass, isDefinedBy, catalogitLiteral),
 
+  (createTime, rdfType, owlDatatypeProperty),
+  (createTime, displayOrder, Literal('1')),
+  (createTime, rdfsDomain, EntryClass),
+  (createTime, rdfsRange, XSD['dateTime']),
+  (createTime, rdfsLabel, Literal('Create Time')),
+  (createTime, RDFS['comment'], Literal('Date and time entry was entered into catalog.')),
+
+  (updateTime, rdfType, owlDatatypeProperty),
+  (updateTime, displayOrder, Literal('2')),
+  (updateTime, rdfsDomain, EntryClass),
+  (updateTime, rdfsRange, XSD['dateTime']),
+  (updateTime, rdfsLabel, Literal('Update Time')),
+  (updateTime, RDFS['comment'], Literal('Date and time entry was last updated.')),
+
   (media, rdfType, owlObjectProperty),
+  (media, displayOrder, Literal('3')),
   (media, rdfsDomain, EntryClass),
   (media, rdfsRange, schemaNS['MediaContainer']),
   (media, rdfsLabel, Literal('Media Container')),
   (media, RDFS['comment'], Literal('The set of media (images, videos, sounds, documents, etc.) associated with the item.')),
+
+  (isUsedFor, rdfType, owlDatatypeProperty),
+  (isUsedFor, rdfsDomain, EntryClass),
+  (isUsedFor, rdfsLabel, Literal('A tag used to indicate how a class is used.')),
+
+  (valuationClass, rdfType, owlClass),
+  (valuationClass, rdfsLabel, Literal('Valuation')),
+  (valuationClass, isUsedFor, usedForSecondary),
+
+  (valuationValue, rdfType, owlDatatypeProperty),
+  (valuationValue, displayOrder, Literal('1')),
+  (valuationValue, rdfsDomain, valuation),
+  (valuationValue, rdfsRange, XSD['decimal']),
+  (valuationValue, rdfsLabel, Literal('Value')),
+  (valuationValue, RDFS['comment'], Literal('Real or estimated value of item.')),
+  
+  (valuationDate, rdfType, owlDatatypeProperty),
+  (valuationDate, displayOrder, Literal('2')),
+  (valuationDate, rdfsDomain, valuation),
+  (valuationDate, rdfsRange, XSD['date']),
+  (valuationDate, rdfsLabel, Literal('Date')),
+  (valuationDate, RDFS['comment'], Literal('Date valuation was provided.')),
+
+  (valuationAgent, rdfType, owlObjectProperty),
+  (valuationAgent, displayOrder, Literal('3')),
+  (valuationAgent, rdfsDomain, valuation),
+  (valuationAgent, rdfsRange, foafAgent),
+  (valuationAgent, rdfsLabel, Literal('Provider')),
+  (valuationAgent, RDFS['comment'], Literal('Person or organization that provided the valuation.')),
 
   (CollectableClass, rdfType, owlClass),
   (CollectableClass, rdfsSubClassOf, EntryClass),
@@ -157,6 +207,41 @@ collectableSchema = [
   (CollectableClass, isDefinedBy, catalogitLiteral),
   (CollectableClass, isUsedFor, usedForPrimary),
 
+  # properties of collectable
+  (dcTitle, rdfsDomain, CollectableClass),
+  (dcTitle, displayOrder, Literal('1')),
+
+  (dcDescription, rdfsDomain, CollectableClass),
+  (dcDescription, displayOrder, Literal('2')),
+
+  (aquireDate, rdfType, owlDatatypeProperty),
+  (aquireDate, displayOrder, Literal('3')),
+  (aquireDate, rdfsDomain, CollectableClass),
+  (aquireDate, rdfsRange, XSD['date']),
+  (aquireDate, rdfsLabel, Literal('Acquire Date')),
+  (aquireDate, RDFS['comment'], Literal('Date the item was acquired.')),
+
+  (aquirePrice, rdfType, owlDatatypeProperty),
+  (aquirePrice, displayOrder, Literal('4')),
+  (aquirePrice, rdfsDomain, CollectableClass),
+  (aquirePrice, rdfsRange, XSD['decimal']),
+  (aquirePrice, rdfsLabel, Literal('Acquire Price')),
+  (aquirePrice, RDFS['comment'], Literal('Cost to acquire the item.')),
+
+  (valuation, rdfType, owlObjectProperty),
+  (valuation, displayOrder, Literal('5')),
+  (valuation, rdfsDomain, CollectableClass),
+  (valuation, rdfsRange, valuationClass),
+  (valuation, rdfsLabel, Literal('Valuation')),
+  (valuation, RDFS['comment'], Literal('Value of the item on a certain date.')),
+
+  (tagContainer, rdfType, owlObjectProperty),
+  (tagContainer, displayOrder, Literal('6')),
+  (tagContainer, rdfsDomain, CollectableClass),
+  (tagContainer, rdfsRange, schemaNS['TagContainer']),
+  (tagContainer, rdfsLabel, Literal('Tags')),
+  (tagContainer, RDFS['comment'], Literal('A list of keywords of your choosing that you use to identify, classify, characterize items.')),
+  
   (basketClass, rdfType, owlClass),
   (basketClass, rdfsLabel, Literal('Basket')),
   (basketClass, rdfsSubClassOf, CollectableClass),
@@ -193,60 +278,6 @@ collectableSchema = [
   (pipeClass, isDefinedBy, catalogitLiteral),
   (pipeClass, isUsedFor, usedForPrimary),
   
-  (valuationClass, rdfType, owlClass),
-  (valuationClass, rdfsLabel, Literal('Valuation')),
-  (valuationClass, isUsedFor, usedForSecondary),
-
-  (isUsedFor, rdfType, owlDatatypeProperty),
-  (isUsedFor, rdfsLabel, Literal('A tag used to indicate how a class is used.')),
-  (isUsedFor, rdfsDomain, owlClass),
-
-  # properties of collectable
-  (dcTitle, rdfsDomain, CollectableClass),
-  (dcDescription, rdfsDomain, CollectableClass),
-
-  (aquirePrice, rdfType, owlDatatypeProperty),
-  (aquirePrice, rdfsDomain, CollectableClass),
-  (aquirePrice, rdfsRange, XSD['decimal']),
-  (aquirePrice, rdfsLabel, Literal('Acquire Price')),
-  (aquirePrice, RDFS['comment'], Literal('Cost to acquire the item.')),
-
-  (aquireDate, rdfType, owlDatatypeProperty),
-  (aquireDate, rdfsDomain, CollectableClass),
-  (aquireDate, rdfsRange, XSD['date']),
-  (aquireDate, rdfsLabel, Literal('Acquire Date')),
-  (aquireDate, RDFS['comment'], Literal('Date the item was acquired.')),
-
-  (tagContainer, rdfType, owlObjectProperty),
-  (tagContainer, rdfsDomain, CollectableClass),
-  (tagContainer, rdfsRange, schemaNS['TagContainer']),
-  (tagContainer, rdfsLabel, Literal('Tags')),
-  (tagContainer, RDFS['comment'], Literal('A list of keywords of your choosing that you use to identify, classify, characterize items.')),
-  
-  (valuation, rdfType, owlObjectProperty),
-  (valuation, rdfsDomain, CollectableClass),
-  (valuation, rdfsRange, valuationClass),
-  (valuation, rdfsLabel, Literal('Valuation')),
-  (valuation, RDFS['comment'], Literal('Value of the item on a certain date.')),
-
-  (valuationValue, rdfType, owlDatatypeProperty),
-  (valuationValue, rdfsDomain, valuation),
-  (valuationValue, rdfsRange, XSD['decimal']),
-  (valuationValue, rdfsLabel, Literal('Value')),
-  (valuationValue, RDFS['comment'], Literal('Real or estimated value of item.')),
-  
-  (valuationDate, rdfType, owlDatatypeProperty),
-  (valuationDate, rdfsDomain, valuation),
-  (valuationDate, rdfsRange, XSD['date']),
-  (valuationDate, rdfsLabel, Literal('Date')),
-  (valuationDate, RDFS['comment'], Literal('Date valuation was provided.')),
-
-  (valuationAgent, rdfType, owlObjectProperty),
-  (valuationAgent, rdfsDomain, valuation),
-  (valuationAgent, rdfsRange, foafAgent),
-  (valuationAgent, rdfsLabel, Literal('Provider')),
-  (valuationAgent, RDFS['comment'], Literal('Person or organization that provided the valuation.')),
-
   (URIRef('http://xmlns.com/foaf/0.1/Image'), isUsedFor, usedForSecondary),
   (URIRef('http://xmlns.com/foaf/0.1/Agent'), isUsedFor, usedForSecondary),
 
@@ -261,7 +292,10 @@ collectableSchema = [
 
 for t in collectableSchema: sg.add(t)
 
-#lifeLoggerNS = Namespace(DEFAULT_GRAPH_URI + '_lifelogger/')
+sg.commit()
+
+
+#lifeLoggerNS = Namespace(BASE_GRAPH_URI + '_lifelogger/')
 #
 #eventClass = lifeLoggerNS['Activity']
 #

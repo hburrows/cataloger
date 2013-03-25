@@ -5,7 +5,7 @@ from django.conf import settings
 
 from storages.backends.s3boto import S3BotoStorage
 
-from handlers import USER_GRAPH_URI
+from . import USER_GRAPH_URI
 
 class UserProfile(models.Model):
   user = models.OneToOneField(User, primary_key=True)
