@@ -33,21 +33,26 @@ sg.parse('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
 # DC vocabularies
 sg.parse('http://purl.org/dc/elements/1.1/')
 sg.parse('http://purl.org/dc/terms/')
-
+sg.parse('http://purl.org/dc/dcmitype/')
 
 # FOAF
 sg.parse('http://xmlns.com/foaf/0.1/')
+
+# GEO - i.e. latitude and longitude
+sg.parse('http://www.w3.org/2003/01/geo/wgs84_pos#')
 
 
 sg.commit()
 
 
 # declare namespaces
-dcElementNS = Namespace('http://purl.org/dc/elements/1.1/')
-dcTermNS = Namespace('http://purl.org/dc/terms/')
-dcDCMINS = Namespace('http://purl.org/dc/dcmitype/')
+DC = Namespace('http://purl.org/dc/elements/1.1/')
+DCTERMS = Namespace('http://purl.org/dc/terms/')
+DCMI = Namespace('http://purl.org/dc/dcmitype/')
 
-foafNS = Namespace('http://xmlns.com/foaf/0.1/')
+FOAF = Namespace('http://xmlns.com/foaf/0.1/')
+
+GEO = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
 
 schemaNS = Namespace(SCHEMA_GRAPH_URI)
 
@@ -71,19 +76,29 @@ isDefinedBy = RDFS['isDefinedBy']
 
 xsdString = XSD['string']
 
-dcTitle = dcElementNS['title']
-dcDescription = dcElementNS['description']
-dcCreator = dcElementNS['creator']
-dcDateSubmitted = dcElementNS['dateSubmitted']
+dcTitle = DC['title']
+dcDescription = DC['description']
+dcCreator = DC['creator']
+dcDateSubmitted = DC['dateSubmitted']
 
-dcImage = dcDCMINS['Image']
-dcMovingImage = dcDCMINS['MovingImage']
-dcStillImage = dcDCMINS['StillImage']
-dcSound = dcDCMINS['Sound']
-dcText = dcDCMINS['Text']
-cdInteractiveResource = dcDCMINS['InteractiveResource']
+dcImage = DCMI['Image']
+dcMovingImage = DCMI['MovingImage']
 
-foafAgent = foafNS['Agent']
+dcStillImage = DCMI['StillImage']
+stillImageType = schemaNS['stillImageType']
+stillImageURL = schemaNS['stillImageURL']
+stillImageWidth = schemaNS['stillImageWidth']
+stillImageHeight = schemaNS['stillImageHeight']
+
+dcSound = DCMI['Sound']
+
+dcText = DCMI['Text']
+
+cdInteractiveResource = DCMI['InteractiveResource']
+
+foafAgent = FOAF['Agent']
+
+stillImageSeq = schemaNS['StillImageSeq']
 
 EntryClass = schemaNS['Entry']
 CollectableClass = schemaNS['Collectable']
@@ -123,6 +138,13 @@ collectableSchema = [
 
   # utility class declarations
   #
+  (stillImageSeq, rdfType, owlClass),
+  (stillImageSeq, rdfsSubClassOf, RDF['Bag']),
+  (stillImageSeq, rdfsLabel, Literal('Still Images')),
+  (stillImageSeq, RDFS['comment'], Literal('A collection of still images of or related to the item.')),  
+  (stillImageSeq, isDefinedBy, catalogitLiteral),
+  (stillImageSeq, isUsedFor, usedForSecondary),
+
   (schemaNS['TagContainer'], rdfType, owlClass),
   (schemaNS['TagContainer'], rdfsSubClassOf, RDF['Bag']),
   (schemaNS['TagContainer'], rdfsLabel, Literal('Tag Container')),
@@ -138,7 +160,22 @@ collectableSchema = [
   (schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
   (schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
 
-
+  (stillImageType, rdfType, owlDatatypeProperty),
+  (stillImageType, rdfsDomain, dcStillImage),
+  (stillImageType, rdfsRange, XSD['string']),
+  
+  (stillImageURL, rdfType, owlDatatypeProperty),
+  (stillImageURL, rdfsDomain, dcStillImage),
+  (stillImageURL, rdfsRange, XSD['string']),
+  
+  (stillImageWidth, rdfType, owlDatatypeProperty),
+  (stillImageWidth, rdfsDomain, dcStillImage),
+  (stillImageWidth, rdfsRange, XSD['integer']),
+  
+  (stillImageHeight, rdfType, owlDatatypeProperty),
+  (stillImageHeight, rdfsDomain, dcStillImage),
+  (stillImageHeight, rdfsRange, XSD['integer']),
+  
   (displayOrder, rdfType, owlDatatypeProperty),
   (displayOrder, rdfsDomain, owlDatatypeProperty),
   (displayOrder, rdfsRange, XSD['integer']),

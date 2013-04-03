@@ -53,33 +53,74 @@ class UsersHandler(BaseHandler):
       username = body_obj.get('username')
       password = body_obj.get('password')
       email = body_obj.get('email')
+      
+      first_name = body_obj.get('first_name', None)
+      last_name = body_obj.get('last_name', None)
 
     except:
       return rc.BAD_REQUEST
 
     try:
       user = User.objects.create_user(username, email, password)
-      user.save()
+
     except IntegrityError:
       resp = rc.DUPLICATE_ENTRY
       resp.write('.  That username is already taken.  Please try another username.')
       return resp
 
+    try:
+
+      saveUser = False
+      
+      if first_name:
+        user.first_name  = first_name
+        saveUser = True
+      if last_name:
+        user.last_name = last_name
+        saveUser = True
+      
+      if saveUser:
+        user.save()
+
+    except:
+      pass
+
     return user
 
-  def delete(self, request, user_id=None):
+  def update(self, request, user_id):
 
-    if user_id:
-      if user_id.lower() == 'self':
-        user_id = request.user.id
+    if user_id.lower() == 'self':
+      user_id = request.user.id
 
-      # can only delete your own data unless you're a superuser
-      if not request.user.is_superuser and int(user_id) != request.user.id:
-        return rc.FORBIDDEN
+    # can only delete your own data unless you're a superuser
+    if not request.user.is_superuser and int(user_id) != request.user.id:
+      return rc.FORBIDDEN
 
-      request.user.delete()
+    try:
+
+      body_obj = json.loads(request.body)
+      
+      password = body_obj.get('password', None)
+
+    except:
+      return rc.BAD_REQUEST
+
+    if password:
+      request.user.set_password(password)
       request.user.save()
 
-      return request.user
-    else:
-      return rc.BAD_REQUEST
+    return {}
+    
+  def delete(self, request, user_id):
+
+    if user_id.lower() == 'self':
+      user_id = request.user.id
+
+    # can only delete your own data unless you're a superuser
+    if not request.user.is_superuser and int(user_id) != request.user.id:
+      return rc.FORBIDDEN
+
+    request.user.delete()
+    request.user.save()
+
+    return request.user
