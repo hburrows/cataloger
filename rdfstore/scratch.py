@@ -9,10 +9,12 @@ from rdflib.store import Store, VALID_STORE
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
+from rdflib import BNode
 from rdflib import RDFS, RDF, OWL, XSD
 
-from api import BASE_GRAPH_URI, SCHEMA_GRAPH_URI, DATABASE_STORE, _get_db_config_string
+from api import BASE_GRAPH_URI, SCHEMA_GRAPH_URI, USER_GRAPH_URI, DATABASE_STORE, _get_db_config_string
 
+SCHEMA = Namespace(SCHEMA_GRAPH_URI)
 
 store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
 
@@ -24,6 +26,8 @@ citg = ConjunctiveGraph(store, identifier=URIRef(BASE_GRAPH_URI))
 sg = Graph(store, identifier=URIRef(SCHEMA_GRAPH_URI))
 g = sg
 
+USER = Namespace(str(USER_GRAPH_URI).format(userId=2))
+ug = Graph(store, identifier=URIRef(USER))
 
 # query for all classes
 #

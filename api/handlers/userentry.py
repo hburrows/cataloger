@@ -290,9 +290,9 @@ class UserEntryHandler(BaseHandler):
                     bNodeImage = BNode()
                     ug.add((bNodeImage, RDF['type'], URIRef(imageType)))
                     ug.add((bNodeImage, SCHEMA['stillImageType'], Literal(imageData.get(str(SCHEMA['stillImageType'])))))
-                    ug.add((bNodeImage, SCHEMA['stillImageURL'], Literal(str(SCHEMA['stillImageURL']))))
-                    ug.add((bNodeImage, SCHEMA['stillImageWidth'], Literal(str(SCHEMA['stillImageWidth']))))
-                    ug.add((bNodeImage, SCHEMA['stillImageHeight'], Literal(str(SCHEMA['stillImageHeight']))))
+                    ug.add((bNodeImage, SCHEMA['stillImageURL'], Literal(imageData.get(str(SCHEMA['stillImageURL'])))))
+                    ug.add((bNodeImage, SCHEMA['stillImageWidth'], Literal(imageData.get(str(SCHEMA['stillImageWidth'])))))
+                    ug.add((bNodeImage, SCHEMA['stillImageHeight'], Literal(imageData.get(str(SCHEMA['stillImageHeight'])))))
                     
                     # add image to images
                     ug.add((bNodeImages, RDF['li'], bNodeImage))
