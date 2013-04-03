@@ -29,8 +29,6 @@ class Image(models.Model):
 
   user = models.ForeignKey(User)
 
-  image = models.ImageField(upload_to='original', storage=S3BotoStorage(bucket='images.catalogit.howardburrows.com'))
-  
   original_width = models.IntegerField()
   original_height = models.IntegerField()
   original = models.ImageField(upload_to=original_pathname,

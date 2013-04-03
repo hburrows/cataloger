@@ -68,7 +68,7 @@ class UserImagesHandler(BaseHandler):
 
       im.save(thumbnail, extension)
 
-      image = ImageModel(user_id=user_id, image=originalImage, original=originalImage, thumbnail=thumbnail)
+      image = ImageModel(user_id=user_id, original=originalImage, thumbnail=thumbnail)
       image.save()
 
       thumbnail.close()
