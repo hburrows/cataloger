@@ -51,9 +51,8 @@ class ClassesHandler(BaseHandler):
         l = g.preferredLabel(cls[0])
   
         classes.append({
-          'id': urllib.quote(cls[0]),
+          'id': cls[0],
           'name': l[0][1] if len(l) > 0 else '',
-          'class': urllib.quote(cls[0]),  # deprecated
           'comment': g.comment(cls[0]),
         })
 

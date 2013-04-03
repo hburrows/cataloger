@@ -13,15 +13,17 @@ from datetime import datetime
 from piston.handler import BaseHandler
 from piston.utils import rc
 
-from rdflib import URIRef, Graph, Namespace, Literal, plugin, BNode
+from rdflib import URIRef, Graph, Namespace, Literal, plugin
 from rdflib.store import Store, VALID_STORE
-from rdflib import RDF, RDFS
+from rdflib import RDF, RDFS, OWL
 
 from api.models import Entry
 
 from api import _get_db_config_string, SCHEMA_GRAPH_URI, USER_GRAPH_URI, DATABASE_STORE
 
-from . import get_predicate_lookup_for, get_full_schema_for
+from . import get_schema_and_lookup_for, get_full_schema_for, SCHEMA
+
+import rdfutils
 
 logger = logging.getLogger(__name__)
 
@@ -96,8 +98,6 @@ class UserEntryHandler(BaseHandler):
 
       else:
 
-        SCHEMA = Namespace(SCHEMA_GRAPH_URI)
-
         # check for filter criteria; if none exists default to all items
         parentClass = None
         if 'filter' in request.GET:
@@ -117,10 +117,11 @@ class UserEntryHandler(BaseHandler):
           PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
           PREFIX dc: <http://purl.org/dc/elements/1.1/> \
           PREFIX sg: <{0}> \
-          SELECT ?subject ?class ?createTime ?title ?description ?acquirePrice \
+          SELECT ?subject ?class ?createTime ?title ?description ?acquirePrice ?media \
           WHERE {{ \
             ?subject rdf:type ?class ; \
                      sg:createTime ?createTime \
+            OPTIONAL {{ ?subject sg:media ?media }} \
             OPTIONAL {{ ?subject dc:title ?title }} \
             OPTIONAL {{ ?subject dc:description ?description }} \
             OPTIONAL {{ ?subject sg:acquirePrice ?acquirePrice }} \
@@ -164,18 +165,16 @@ class UserEntryHandler(BaseHandler):
     try:
       body_obj = json.loads(request.body)
       
-      # check for existance and determine class
-      data = body_obj.get('data',[])
-      classURI = data.get(rdfTypeStr)
-      if not classURI:
-        resp = rc.BAD_REQUEST
-        resp.write (' - missing required entry predicate: ' + rdfTypeStr)
-        return resp
-
-      classURIRef = URIRef(urllib.unquote(classURI))
-
     except:
       return rc.BAD_REQUEST
+
+    # check for existance and determine class
+    data = body_obj.get('data',[])
+    classURI = data.get(rdfTypeStr)
+    if not classURI:
+      resp = rc.BAD_REQUEST
+      resp.write (' - missing required predicate: ' + rdfTypeStr)
+      return resp
 
     try:
       entry = Entry(user_id=user_id)
@@ -191,122 +190,23 @@ class UserEntryHandler(BaseHandler):
     assert rt == VALID_STORE,"The underlying store is corrupted"
 
     try:
-      SCHEMA = Namespace(SCHEMA_GRAPH_URI)
+
       USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
 
       ug = Graph(store, identifier=URIRef(USER))
       sg = Graph(store, identifier=URIRef(SCHEMA))
 
-      DCMI = Namespace('http://purl.org/dc/dcmitype/')
-      GEO = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
+      # inject id into JSON
+      body_obj['id'] = USER[str(entry.id)]
 
-      # get the schema for the specified type
-      lookup = get_predicate_lookup_for(sg, classURIRef)
-
-      entryURIRef = USER[str(entry.id)]
-
-      # handle createTime, updateTime, and type specially
-      ug.add((entryURIRef, rdfType, classURIRef))
-
+      entryURIRef = rdfutils.object_from_json(sg, ug, body_obj, None, None)
+      
       now = datetime.now()
       timestamp = calendar.timegm(now.timetuple())
-      
+       
       ug.add((entryURIRef, SCHEMA['createTime'], Literal(timestamp)))
       ug.add((entryURIRef, SCHEMA['updateTime'], Literal(timestamp)))
       
-      for predicate, obj in body_obj.get('data',{}).iteritems():
-        
-        print predicate, ' -> ', obj
-
-        # type is handled specially
-        if predicate == rdfTypeStr:
-          continue
-
-        predicateSchema = lookup.get(predicate)
-        if not predicateSchema:
-          print "Cannot find schema for {0}- skipping property".format(predicate)
-          continue
-        
-        objectRef = None
-        
-        typeUri = str(predicateSchema['type']) 
-        if typeUri == 'http://www.w3.org/2002/07/owl#DatatypeProperty' or typeUri == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#Property':
-          objectRef = Literal(obj)
-
-        elif typeUri == 'http://www.w3.org/2002/07/owl#ObjectProperty':
-
-          # generalize object creation -- objects are either BNode or URIRefs
-          if predicateSchema['range'] == SCHEMA['MediaContainer']:
-
-            bNodeContainer = BNode()
-            ug.add((bNodeContainer, RDF['type'], URIRef(predicateSchema['range'])))
-
-            for media in obj.get('data', []):
-
-              bNodeMedia = None
-              mediaType = media.get('type')
-              mediaData = media.get('data')
-
-              if mediaType == str(SCHEMA['StillImage']):
-
-                bNodeMedia = BNode()
-                ug.add((bNodeMedia, RDF['type'], URIRef(mediaType)))
-  
-                locationPredicateURI = SCHEMA['location']
-                location = mediaData.get(str(locationPredicateURI))
-                if location:
-                  
-                  locationType = location.get('type')
-                  locationData = location.get('data')
-                  
-                  bNodePoint = BNode()
-                  ug.add((bNodePoint, RDF['type'], URIRef(locationType)))
-                  ug.add((bNodeMedia, locationPredicateURI, bNodePoint))
-
-                  ug.add((bNodePoint, GEO['lat'], Literal(locationData.get(str(GEO['lat'])))))
-                  ug.add((bNodePoint, GEO['long'], Literal(locationData.get(str(GEO['long'])))))
-                         
-
-                imagesPredicateURI = SCHEMA['images']
-                images = mediaData.get(str(imagesPredicateURI))
-                if images:
-                  
-                  imagesType = images.get('type')
-                  imagesData = images.get('data')
-                  
-                  bNodeImages = BNode()
-                  ug.add((bNodeImages, RDF['type'], URIRef(imagesType)))
-                  ug.add((bNodeMedia, imagesPredicateURI, bNodeImages))
-
-                  stillImageURI = DCMI['StillImage']
-                  for image in imagesData:
-
-                    imageType = image.get('type')
-                    imageData = image.get('data')
-
-                    if str(stillImageURI) != imageType:
-                      raise Exception("Type mismatched - expected {0}".format(stillImageURI))
-                                    
-                    bNodeImage = BNode()
-                    ug.add((bNodeImage, RDF['type'], URIRef(imageType)))
-                    ug.add((bNodeImage, SCHEMA['stillImageType'], Literal(imageData.get(str(SCHEMA['stillImageType'])))))
-                    ug.add((bNodeImage, SCHEMA['stillImageURL'], Literal(imageData.get(str(SCHEMA['stillImageURL'])))))
-                    ug.add((bNodeImage, SCHEMA['stillImageWidth'], Literal(imageData.get(str(SCHEMA['stillImageWidth'])))))
-                    ug.add((bNodeImage, SCHEMA['stillImageHeight'], Literal(imageData.get(str(SCHEMA['stillImageHeight'])))))
-                    
-                    # add image to images
-                    ug.add((bNodeImages, RDF['li'], bNodeImage))
-            
-              ug.add((bNodeContainer, RDF['li'], bNodeMedia))
-
-            objectRef = bNodeContainer
-          else:
-            objectRef = URIRef(obj)
-        else:
-          raise Exception("Only support owl:DatatypeProperty, rdf:Property and owl:ObjectProperty properties")
-                                                            
-        ug.add((entryURIRef, URIRef(predicate), objectRef))
-
       ug.commit()
 
       result = _get_entry_json_obj(ug, sg, entryURIRef)

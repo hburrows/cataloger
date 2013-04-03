@@ -1,7 +1,19 @@
 import urllib
 
-from rdflib import URIRef
+from rdflib import URIRef, Namespace
 from rdflib import OWL, RDFS
+
+from api import SCHEMA_GRAPH_URI
+
+'''
+  CONSTANTS
+'''
+
+SCHEMA = Namespace(SCHEMA_GRAPH_URI)
+
+DCMI = Namespace('http://purl.org/dc/dcmitype/')
+GEO = Namespace('http://www.w3.org/2003/01/geo/wgs84_pos#')
+
 
 '''
   UTILITY
@@ -34,6 +46,7 @@ def get_full_json(g, uriRef):
         OPTIONAL { ?property rdfs:range ?range } \
         FILTER (STRSTARTS(STR(?type), STR(owl:DatatypeProperty)) || \
                 STRSTARTS(STR(?type), STR(owl:ObjectProperty)) || \
+                STRSTARTS(STR(?type), STR(rdf:Seq)) || \
                 STRSTARTS(STR(?type), STR(rdf:Property))) \
       } \
     } \
@@ -69,9 +82,8 @@ def get_full_json(g, uriRef):
   l = g.preferredLabel(uriRef)
   
   return {
-    'id': urllib.quote(uriRef),
+    'id': uriRef,
     'name': l[0][1] if len(l) > 0 else '',
-    'classUri': urllib.quote(uriRef),   # deprecated
     'comment': g.comment(uriRef),
     'properties': properties }
 
@@ -89,6 +101,7 @@ def get_base_json(g, uriRef):
         OPTIONAL { ?property rdfs:range ?range } \
         FILTER (STRSTARTS(STR(?type), STR(owl:DatatypeProperty)) || \
                 STRSTARTS(STR(?type), STR(owl:ObjectProperty)) || \
+                STRSTARTS(STR(?type), STR(rdf:Seq)) || \
                 STRSTARTS(STR(?type), STR(rdf:Property))) \
       } \
     }')
@@ -132,7 +145,7 @@ def get_base_schema_for(g, classURIRef):
   
   return flatProperties
 
-def get_predicate_lookup_for(g, classURIRef):
+def get_schema_and_lookup_for(g, classURIRef):
   classDefs = []
   classDefs.append(get_base_json(g, classURIRef))
   dump_supers(g, classURIRef, classDefs, get_base_json)
@@ -142,4 +155,4 @@ def get_predicate_lookup_for(g, classURIRef):
     for predicate in classDef['properties']:
       lookup[str(predicate['property'])] = predicate
   
-  return lookup
+  return classDefs[::-1], lookup

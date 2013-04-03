@@ -82,6 +82,7 @@ dcCreator = DC['creator']
 dcDateSubmitted = DC['dateSubmitted']
 
 dcImage = DCMI['Image']
+
 dcMovingImage = DCMI['MovingImage']
 
 dcStillImage = DCMI['StillImage']
@@ -97,8 +98,6 @@ dcText = DCMI['Text']
 cdInteractiveResource = DCMI['InteractiveResource']
 
 foafAgent = FOAF['Agent']
-
-stillImageSeq = schemaNS['StillImageSeq']
 
 EntryClass = schemaNS['Entry']
 CollectableClass = schemaNS['Collectable']
@@ -134,31 +133,48 @@ catalogitLiteral = Literal('catalogit')
 displayOrder = schemaNS['displayOrder']
 userEditable = schemaNS['userEditable']
 
+
+'''
+# utility class declarations
+#
+(stillImageSeq, rdfType, owlClass),
+(stillImageSeq, rdfsSubClassOf, RDF['Seq']),
+(stillImageSeq, rdfsLabel, Literal('Still Images')),
+(stillImageSeq, RDFS['comment'], Literal('A collection of still images of or related to the item.')),  
+(stillImageSeq, isDefinedBy, catalogitLiteral),
+(stillImageSeq, isUsedFor, usedForSecondary),
+
+(schemaNS['TagContainer'], rdfType, owlClass),
+(schemaNS['TagContainer'], rdfsSubClassOf, RDF['Seq']),
+(schemaNS['TagContainer'], rdfsLabel, Literal('Tag Container')),
+(schemaNS['TagContainer'], RDFS['comment'], Literal('A container of arbitrary xsd:string literals intended to be used for keywords of a user\'s choosing that identify, classify, and/or characterize items.')),  
+(schemaNS['TagContainer'], isDefinedBy, catalogitLiteral),
+(schemaNS['TagContainer'], isUsedFor, usedForSecondary),
+
+
+(schemaNS['MediaContainer'], rdfType, owlClass),
+(schemaNS['MediaContainer'], rdfsSubClassOf, RDF['Seq']),
+(schemaNS['MediaContainer'], rdfsLabel, Literal('Media Container')),
+(schemaNS['MediaContainer'], RDFS['comment'], Literal('A container for storing different types of media associated with an item.')),  
+(schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
+(schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
+'''
+
 collectableSchema = [
 
   # utility class declarations
   #
-  (stillImageSeq, rdfType, owlClass),
-  (stillImageSeq, rdfsSubClassOf, RDF['Bag']),
-  (stillImageSeq, rdfsLabel, Literal('Still Images')),
-  (stillImageSeq, RDFS['comment'], Literal('A collection of still images of or related to the item.')),  
-  (stillImageSeq, isDefinedBy, catalogitLiteral),
-  (stillImageSeq, isUsedFor, usedForSecondary),
+  (schemaNS['StillImage'], rdfType, owlClass),
+  (schemaNS['StillImage'], rdfsLabel, Literal('Still Image')),
+  (schemaNS['StillImage'], isUsedFor, usedForSecondary),
 
-  (schemaNS['TagContainer'], rdfType, owlClass),
-  (schemaNS['TagContainer'], rdfsSubClassOf, RDF['Bag']),
-  (schemaNS['TagContainer'], rdfsLabel, Literal('Tag Container')),
-  (schemaNS['TagContainer'], RDFS['comment'], Literal('A container of arbitrary xsd:string literals intended to be used for keywords of a user\'s choosing that identify, classify, and/or characterize items.')),  
-  (schemaNS['TagContainer'], isDefinedBy, catalogitLiteral),
-  (schemaNS['TagContainer'], isUsedFor, usedForSecondary),
-
-
-  (schemaNS['MediaContainer'], rdfType, owlClass),
-  (schemaNS['MediaContainer'], rdfsSubClassOf, RDF['Seq']),
-  (schemaNS['MediaContainer'], rdfsLabel, Literal('Media Container')),
-  (schemaNS['MediaContainer'], RDFS['comment'], Literal('A container for storing different types of media associated with an item.')),  
-  (schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
-  (schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
+  (schemaNS['location'], rdfType, owlObjectProperty),
+  (schemaNS['location'], rdfsDomain, schemaNS['StillImage']),
+  (schemaNS['location'], rdfsRange, GEO['Point']),
+  (schemaNS['location'], rdfsLabel, Literal('Location')),
+  
+  (schemaNS['images'], rdfType, RDF['Seq']),
+  (schemaNS['images'], rdfsDomain, schemaNS['StillImage']),
 
   (stillImageType, rdfType, owlDatatypeProperty),
   (stillImageType, rdfsDomain, dcStillImage),
@@ -179,7 +195,6 @@ collectableSchema = [
   (displayOrder, rdfType, owlDatatypeProperty),
   (displayOrder, rdfsDomain, owlDatatypeProperty),
   (displayOrder, rdfsRange, XSD['integer']),
-
   
   # cit class declarations
   #
@@ -202,10 +217,10 @@ collectableSchema = [
   (updateTime, rdfsLabel, Literal('Update Time')),
   (updateTime, RDFS['comment'], Literal('Date and time entry was last updated.')),
 
-  (media, rdfType, owlObjectProperty),
+  (media, rdfType, RDF['Seq']),
   (media, displayOrder, Literal('3')),
   (media, rdfsDomain, EntryClass),
-  (media, rdfsRange, schemaNS['MediaContainer']),
+  (media, rdfsRange, schemaNS['StillImage']),
   (media, rdfsLabel, Literal('Media Container')),
   (media, RDFS['comment'], Literal('The set of media (images, videos, sounds, documents, etc.) associated with the item.')),
 
@@ -272,10 +287,10 @@ collectableSchema = [
   (valuation, rdfsLabel, Literal('Valuation')),
   (valuation, RDFS['comment'], Literal('Value of the item on a certain date.')),
 
-  (tagContainer, rdfType, owlObjectProperty),
+  (tagContainer, rdfType, RDF['Seq']),
   (tagContainer, displayOrder, Literal('6')),
   (tagContainer, rdfsDomain, CollectableClass),
-  (tagContainer, rdfsRange, schemaNS['TagContainer']),
+  (tagContainer, rdfsRange, XSD['string']),
   (tagContainer, rdfsLabel, Literal('Tags')),
   (tagContainer, RDFS['comment'], Literal('A list of keywords of your choosing that you use to identify, classify, characterize items.')),
   
