@@ -53,7 +53,7 @@ rs = g.query(
    WHERE { ?class rdf:type owl:Class . ?class sg:isUsedFor "primary" OPTIONAL { ?class rdfs:label ?label } } \
    ORDER BY ?label')
     
-    
+
 # query schema related to class
 #
 classUri = 'http://example.com/rdf/schemas/Collectable'
@@ -107,6 +107,40 @@ rs = ug.query(
     ?subject rdf:type ?class \
   } \
   ORDER BY ?createTime')
+
+# query seq for elements
+template = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+SELECT ?seq_index ?seq_item ?type WHERE {{
+     <{0}> ?seq_index ?seq_item .
+     ?seq_item rdf:type <{1}> .
+}}
+"""
+query = template.format('N882eb3fad4e24e05a903122b7a535cf0', 'http://purl.org/dc/dcmitype/StillImage')
+
+for idx, elNode, elType in ug.query(query):
+  print idx, elNode, elType
+
+
+# query the media's still-image subjects for thumbnails.
+template = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX ug: <http://example.com/rdf/users/2#>
+PREFIX sg: <http://example.com/rdf/schemas/>
+SELECT ?seq_index ?media_item ?type ?stillImageType ?stillImageURL
+WHERE {{
+     <{0}> ?seq_index ?media_item .
+     ?media_item rdf:type <{1}> .
+     ?media_item sg:images ?media_item_seq .
+     ?media_item_seq ?media_item_seq_index ?media_item_instance .
+     ?media_item_instance sg:stillImageType "thumbnail" .
+     ?media_item_instance sg:stillImageURL ?stillImageURL .
+}}
+"""
+query = template.format('Nf8afb396966049fd8db7ffa930f816ee', 'http://example.com/rdf/schemas/StillImage')
+
+for idx, elNode, elType, imgType, imgUrl in ug.query(query):
+  print idx, elNode, elType, imgType, imgUrl
 
 # query for all contexts and all properties related by domain
 #

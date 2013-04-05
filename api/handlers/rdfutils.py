@@ -5,7 +5,7 @@ Created on Apr 3, 2013
 '''
 from rdflib import BNode, Literal, URIRef, RDF, OWL, RDFS
 
-from . import get_schema_and_lookup_for
+from . import get_schema_and_lookup_for, get_full_schema_for
 
 RDF_type = RDF['type']
 OWL_DatatypeProperty = OWL['DatatypeProperty']
@@ -31,16 +31,16 @@ def seq_from_json(sg, ug, jsonObj, seqPredicate):
 
   for idx, element in enumerate(objData):
 
-    subject = None
+    elementNode = None
 
     if type(element) == type({}):
-      subject = object_from_json(sg, ug, element, None, None)
+      elementNode = object_from_json(sg, ug, element, None, None)
     elif type(element) == type([]):
-      subject = seq_from_json(sg, ug, element, None, None)
+      elementNode = seq_from_json(sg, ug, element, None, None)
     else:
-      subject = literal_from_json(sg, ug, element, None, None)
+      elementNode = literal_from_json(sg, ug, element, None, None)
 
-    ug.add((bNodeSeq, URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#_{0}'.format(idx+1)), subject))
+    ug.add((bNodeSeq, URIRef('http://www.w3.org/1999/02/22-rdf-syntax-ns#_{0}'.format(idx+1)), elementNode))
 
   # - end seq elements
 
@@ -104,7 +104,96 @@ def object_from_json(sg, ug, jsonObj, objPredicate, schema):
     # sequence
     elif typeUri == str(RDF['Seq']):
       subject = seq_from_json(sg, ug, obj, pred)
-      
+    
+    else:
+        raise Exception("Unsupported type: {0}".format(typeUri))
+
     ug.add((objNode, URIRef(pred), subject))
 
   return objNode
+
+
+def seq_to_json(sg, ug, seqNode):
+
+  items = ug.seq(seqNode)
+  if not items:
+    raise Exception("Node is not of type RDF['Seq']")
+
+  query = """
+  PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+  SELECT ?seq_index ?seq_item ?type WHERE {{
+       <{0}> ?seq_index ?seq_item .
+       ?seq_item rdf:type ?type .
+  }}
+  """
+
+  query = query.format(str(seqNode))
+
+  objData = []
+  for idx, node, nodeType in ug.query(query):
+
+    print idx, node, nodeType
+
+    seqItem = None
+    if type(node) == Literal:
+      seqItem = str(node)
+    elif type(node) == URIRef:
+      seqItem = str(node)
+    elif type(node) == BNode:
+      # must have an RDF['type']
+      objType = list(ug.objects(node, RDF['type']))[0]
+      if objType == RDF['Seq']:
+        seqItem = seq_to_json(sg, ug, node)
+      else:
+        seqItem = object_to_json(sg, ug, node)
+    else:
+      raise Exception("Unsupported type: {0]".format(type(node)))
+
+    objData.append(seqItem)
+
+  return objData
+
+def object_to_json(sg, ug, objectNode):
+  
+  query = ' \
+    SELECT ?predicate ?object \
+    WHERE {{ \
+      <{0}> ?predicate ?object \
+    }}'.format(str(objectNode))
+
+  propDict = {}
+  for pred, obj in ug.query(query):
+    propDict[str(pred)] = obj
+
+  # get the type so we can get the schema
+  classURIStr = propDict.get(str(RDF['type']))
+
+  if not classURIStr:
+    raise Exception('Missing require RDF[\'type\']')
+
+  # get the schema for the specified type
+  schema, lookup = get_schema_and_lookup_for(sg, URIRef(classURIStr))
+
+  objData = {}
+  for pred, obj in propDict.iteritems():
+    if type(obj) == Literal:
+      objData[pred] = str(obj)
+    elif type(obj) == URIRef:
+      objData[pred] = str(obj)
+    elif type(obj) == BNode:
+      predSchema = lookup.get(pred)
+      typeUri = str(predSchema['type'])
+
+      # object
+      if typeUri == str(OWL_ObjectProperty) or typeUri == str(RDFS_Class):
+        # generalize object creation -- objects are either BNode or URIRefs
+        objData[pred] = object_to_json(sg, ug, obj)
+      
+      # sequence
+      elif typeUri == str(RDF['Seq']):
+        objData[pred] = seq_to_json(sg, ug, obj)
+
+      else:
+        raise Exception("Unsupported type: {0}".format(typeUri))
+
+  return {'data': objData, 'schema': schema }

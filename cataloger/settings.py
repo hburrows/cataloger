@@ -166,6 +166,9 @@ LOGGING = {
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = '1GQHWPDN25PQVJ88CR82'
 AWS_SECRET_ACCESS_KEY = 'gXpUJGYuESg+US3DPv+1IdkoTAX/6FnMqJi6CXgG'
+AWS_QUERYSTRING_AUTH = False
+
+AWS_S3_SECURE_URLS = False
 
 # for storing and serving static content from AWS
 if not DEBUG:

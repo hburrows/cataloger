@@ -115,7 +115,7 @@ def get_base_json(g, uriRef):
     })
 
   return {
-    'classUri': str(uriRef),
+    'id': str(uriRef),
     'properties': properties }
 
 
@@ -149,6 +149,18 @@ def get_schema_and_lookup_for(g, classURIRef):
   classDefs = []
   classDefs.append(get_base_json(g, classURIRef))
   dump_supers(g, classURIRef, classDefs, get_base_json)
+
+  lookup = {}
+  for classDef in classDefs:
+    for predicate in classDef['properties']:
+      lookup[str(predicate['property'])] = predicate
+  
+  return classDefs[::-1], lookup
+
+def get_full_schema_and_lookup_for(g, classURIRef):
+  classDefs = []
+  classDefs.append(get_full_json(g, classURIRef))
+  dump_supers(g, classURIRef, classDefs, get_full_json)
 
   lookup = {}
   for classDef in classDefs:

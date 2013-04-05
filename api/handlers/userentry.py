@@ -21,7 +21,7 @@ from api.models import Entry
 
 from api import _get_db_config_string, SCHEMA_GRAPH_URI, USER_GRAPH_URI, DATABASE_STORE
 
-from . import get_schema_and_lookup_for, get_full_schema_for, SCHEMA
+from . import SCHEMA
 
 import rdfutils
 
@@ -29,29 +29,11 @@ logger = logging.getLogger(__name__)
 
 def _get_entry_json_obj(ug, sg, entryURIRef):
 
-  entryURIStr = str(entryURIRef)
-
-  # select all the predicates and objects for this subject
-  query = ' \
-    SELECT ?predicate ?object \
-    WHERE {{ \
-      <{0}> ?predicate ?object \
-    }}'.format(str(entryURIStr))
+  data = rdfutils.object_to_json(sg, ug, entryURIRef)
   
-  rs = ug.query(query)
+  data['id'] = str(entryURIRef)
 
-  data = {}
-  for t in rs:
-    data[str(t[0])] = str(t[1])
-
-  # find the type of the object so we can query for its schema
-  typePred = RDF['type']
-  typeVal = data.get(str(typePred))
-
-  if not typeVal:
-    raise Exception('Invalid state: entry missing required RDF[\'type\']')
-
-  return {'id': urllib.quote(entryURIStr), 'data': data, 'schema': get_full_schema_for(typeVal, sg)}
+  return data;
     
 class UserEntryHandler(BaseHandler):
 
@@ -83,8 +65,10 @@ class UserEntryHandler(BaseHandler):
     assert rt == VALID_STORE,"The underlying store is corrupted"
 
     try:
-      
-      ug = Graph(store, identifier=URIRef(str(USER_GRAPH_URI).format(userId=user_id)))
+
+      ugURI = str(USER_GRAPH_URI).format(userId=user_id)
+
+      ug = Graph(store, identifier=URIRef(ugURI))
       sg = Graph(store, identifier=URIRef(SCHEMA_GRAPH_URI))
 
       DC = Namespace('http://purl.org/dc/elements/1.1/')
@@ -93,8 +77,7 @@ class UserEntryHandler(BaseHandler):
       
       if entry_id:
 
-        entryURI = URIRef(urllib.unquote(entry_id))
-        result = _get_entry_json_obj(ug, sg, entryURI)
+        result = _get_entry_json_obj(ug, sg, URIRef(entry_id))
 
       else:
 
@@ -112,26 +95,38 @@ class UserEntryHandler(BaseHandler):
         filterStr = None
         for cc in candidateClasses:
           filterStr = '{0} || STRSTARTS(STR(?class), "{1}")'.format(filterStr, cc) if filterStr else 'STRSTARTS(STR(?class), "{0}")'.format(cc)
-        
-        query = ' \
-          PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \
-          PREFIX dc: <http://purl.org/dc/elements/1.1/> \
-          PREFIX sg: <{0}> \
-          SELECT ?subject ?class ?createTime ?title ?description ?acquirePrice ?media \
-          WHERE {{ \
-            ?subject rdf:type ?class ; \
-                     sg:createTime ?createTime \
-            OPTIONAL {{ ?subject sg:media ?media }} \
-            OPTIONAL {{ ?subject dc:title ?title }} \
-            OPTIONAL {{ ?subject dc:description ?description }} \
-            OPTIONAL {{ ?subject sg:acquirePrice ?acquirePrice }} \
-            FILTER ({1}) \
-          }} \
-          ORDER BY DESC(?createTime)'
-        
-        query = query.format(SCHEMA_GRAPH_URI, filterStr)
 
-        rs = ug.query(query)
+        template = '''
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX sg: <http://example.com/rdf/schemas/>
+PREFIX : <{0}>
+SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL
+WHERE {{
+  ?s rdf:type ?class ;
+      sg:createTime ?createTime .
+  OPTIONAL {{ ?s sg:media ?media }}
+  OPTIONAL {{ ?s dc:title ?title }}             
+  OPTIONAL {{ ?s dc:description ?description }}             
+  OPTIONAL {{ ?s sg:acquirePrice ?acquirePrice }}
+  
+  OPTIONAL {{
+    # get the media
+    ?s sg:media ?media .
+    ?media ?seq_index ?media_item .
+    ?media_item rdf:type <http://example.com/rdf/schemas/StillImage> .
+    ?media_item sg:images ?media_item_seq .
+    ?media_item_seq ?media_item_seq_index ?media_item_instance .
+    ?media_item_instance sg:stillImageType "thumbnail" .
+    ?media_item_instance sg:stillImageURL ?thumbnailURL .
+  }}      
+  FILTER ({1}) 
+}} 
+ORDER BY DESC(?createTime)
+'''
+        q = template.format(ugURI, filterStr)
+        
+        rs = ug.query(q)
         
         result = [{'id': urllib.quote(t[0]),
                    'data': {
@@ -139,7 +134,8 @@ class UserEntryHandler(BaseHandler):
                      str(SCHEMA['createTime']): t[2],
                      str(DC['title']): t[3],
                      str(DC['description']): t[4],
-                     str(SCHEMA['acquirePrice']): t[5]
+                     str(SCHEMA['acquirePrice']): t[5],
+                     str(SCHEMA['stillImageURL']): t[6]
                    },
                    'schema': None } for t in rs]
                    
@@ -242,10 +238,9 @@ class UserEntryHandler(BaseHandler):
       USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
 
       ug = Graph(store, identifier=URIRef(USER))
+      sg = Graph(store, identifier=URIRef(SCHEMA))
 
-      entryURIRef = URIRef(urllib.unquote(entry_id))
-
-      result = _get_entry_json_obj(ug, entryURIRef)
+      result = _get_entry_json_obj(ug, sg, URIRef(entry_id))
 
     finally:
       store.close()

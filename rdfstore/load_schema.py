@@ -134,32 +134,6 @@ displayOrder = schemaNS['displayOrder']
 userEditable = schemaNS['userEditable']
 
 
-'''
-# utility class declarations
-#
-(stillImageSeq, rdfType, owlClass),
-(stillImageSeq, rdfsSubClassOf, RDF['Seq']),
-(stillImageSeq, rdfsLabel, Literal('Still Images')),
-(stillImageSeq, RDFS['comment'], Literal('A collection of still images of or related to the item.')),  
-(stillImageSeq, isDefinedBy, catalogitLiteral),
-(stillImageSeq, isUsedFor, usedForSecondary),
-
-(schemaNS['TagContainer'], rdfType, owlClass),
-(schemaNS['TagContainer'], rdfsSubClassOf, RDF['Seq']),
-(schemaNS['TagContainer'], rdfsLabel, Literal('Tag Container')),
-(schemaNS['TagContainer'], RDFS['comment'], Literal('A container of arbitrary xsd:string literals intended to be used for keywords of a user\'s choosing that identify, classify, and/or characterize items.')),  
-(schemaNS['TagContainer'], isDefinedBy, catalogitLiteral),
-(schemaNS['TagContainer'], isUsedFor, usedForSecondary),
-
-
-(schemaNS['MediaContainer'], rdfType, owlClass),
-(schemaNS['MediaContainer'], rdfsSubClassOf, RDF['Seq']),
-(schemaNS['MediaContainer'], rdfsLabel, Literal('Media Container')),
-(schemaNS['MediaContainer'], RDFS['comment'], Literal('A container for storing different types of media associated with an item.')),  
-(schemaNS['MediaContainer'], isDefinedBy, catalogitLiteral),
-(schemaNS['MediaContainer'], isUsedFor, usedForSecondary),
-'''
-
 collectableSchema = [
 
   # utility class declarations
