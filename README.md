@@ -13,9 +13,10 @@
 
 	 OR
 	
-	  ID <string>, TYPE <string>, DATA <dictionary>, SCHEMA <list>
+	  ID <string - unique identifier for instance>,
+	  TYPE <string - >, DATA <dictionary>, SCHEMA <list>
 			
-			data: dictionary of predicate: values
+			data: dictionary of predicate: values or list of 'predicate:value' objects
 	     - predicates are the keys to the 'data' dictionary
 	     - values are either data-properties or object-properties.  Object properties have a recursive {id, type, data, schema} layout
 	
@@ -54,8 +55,8 @@
 
 ### Example 
 		{
-		  id: http://example.com/api/entries/24/
-		  type: http://example.com/rdf/schemas/Doll
+		  id: http://example.com/api/entries/24/,
+		  type: http://example.com/rdf/schemas/Doll,		// don't really need because of required 22-rdf-syntax-ns#type
 		  schema: {}
 		  data: {
 
@@ -68,7 +69,7 @@
 
 		    "http://example.com/rdf/schemas/media": {
 
-					type: http://example.com/rdf/schemas/MediaContainer,   // StillImage, MovingImage, Sound
+					type: RDF['Seq'],   // StillImage, MovingImage, Sound
 					schema: {}
 					data: [ 
 
@@ -76,6 +77,8 @@
 							type: http://example.com/rdf/schemas/StillImage
 							data: {
 
+								"http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://example.com/rdf/schemas/StillImage",
+								
 								"http://example.com/rdf/schemas/location": {
 									type: http://www.w3.org/2003/01/geo/wgs84_pos#Point,
 									data: {
@@ -85,8 +88,21 @@
 								}
 
 								"http://example.com/rdf/schemas/images": {
-									type: 'http://example.com/rdf/schemas/StillImageSeq',
-									data: [ {type: 'http://purl.org/dc/dcmitype/StillImage', data: { type, url, width, height }}, {...} ]
+									type: RDF['Seq'],
+									data: [
+										{
+											type: 'http://purl.org/dc/dcmitype/StillImage',
+										
+											data: { 
+												"http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "http://purl.org/dc/dcmitype/StillImage"
+												type, 
+												url, 
+												width, 
+												height 
+											}
+										},
+										{...}
+									]
 								}
 							}
 						},

@@ -170,6 +170,9 @@ AWS_QUERYSTRING_AUTH = False
 
 AWS_S3_SECURE_URLS = False
 
+from boto.s3.connection import OrdinaryCallingFormat, VHostCallingFormat
+AWS_CALLING_FORMAT = OrdinaryCallingFormat()
+
 # for storing and serving static content from AWS
 if not DEBUG:
 	AWS_STORAGE_BUCKET_NAME = 'static.catalogit.howardburrows.com'

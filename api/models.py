@@ -32,14 +32,14 @@ class Image(models.Model):
   original_width = models.IntegerField()
   original_height = models.IntegerField()
   original = models.ImageField(upload_to=original_pathname,
-                               storage=S3BotoStorage(bucket='images.catalogit.howardburrows.com'),
+                               storage=S3BotoStorage(bucket='images.catalogit.howardburrows.com', settings={}),
                                width_field='original_width',
                                height_field='original_height')
 
   thumbnail_width = models.IntegerField()
   thumbnail_height = models.IntegerField()
   thumbnail = models.ImageField(upload_to=thumbnail_pathname,
-                                storage=S3BotoStorage(bucket='images.catalogit.howardburrows.com'),
+                                storage=S3BotoStorage(bucket='images.catalogit.howardburrows.com', settings={}),
                                 width_field='thumbnail_width',
                                 height_field='thumbnail_height')
 
