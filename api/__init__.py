@@ -11,7 +11,7 @@ BASE_GRAPH_URI = "http://example.com/rdf/"
 
 SCHEMA_GRAPH_URI = BASE_GRAPH_URI + 'schemas/'
 
-USER_GRAPH_URI = BASE_GRAPH_URI + 'users/{userId}#'
+USER_GRAPH_URI = BASE_GRAPH_URI + 'users/{userId}/'
 
 MYSQL_HOST = 'localhost'
 POSTGRES_HOST = '/tmp/'
@@ -28,9 +28,6 @@ def _get_mysql_config_string():
 def _get_postgresql_config_string():
   return 'host={0} user={1} dbname={2}'.format(POSTGRES_HOST, USER, DB)
 
-
-#DATABASE_STORE = 'MySQL'
-#_get_db_config_string = _get_mysql_config_string
 
 DATABASE_STORE = 'PostgreSQL'
 _get_db_config_string = _get_postgresql_config_string

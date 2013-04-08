@@ -36,7 +36,8 @@ sg.parse('http://purl.org/dc/terms/')
 sg.parse('http://purl.org/dc/dcmitype/')
 
 # FOAF
-sg.parse('http://xmlns.com/foaf/0.1/')
+#sg.parse('http://xmlns.com/foaf/0.1/')
+sg.parse('http://xmlns.com/foaf/spec/20100809.rdf')
 
 # GEO - i.e. latitude and longitude
 sg.parse('http://www.w3.org/2003/01/geo/wgs84_pos#')

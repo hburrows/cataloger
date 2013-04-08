@@ -128,7 +128,7 @@ ORDER BY DESC(?createTime)
         
         rs = ug.query(q)
         
-        result = [{'id': urllib.quote(t[0]),
+        result = [{'id': t[0],
                    'data': {
                      str(RDF['type']): t[1], 
                      str(SCHEMA['createTime']): t[2],
