@@ -98,13 +98,15 @@ class UserEntryHandler(BaseHandler):
 
         template = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX sg: <http://example.com/rdf/schemas/>
 PREFIX : <{0}>
-SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL
+SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL ?typeLabel
 WHERE {{
   ?s rdf:type ?class ;
       sg:createTime ?createTime .
+  # ?class rdfs:label ?typeLabel .
   OPTIONAL {{ ?s sg:media ?media }}
   OPTIONAL {{ ?s dc:title ?title }}             
   OPTIONAL {{ ?s dc:description ?description }}             
@@ -130,7 +132,8 @@ ORDER BY DESC(?createTime)
         
         result = [{'id': t[0],
                    'data': {
-                     str(RDF['type']): t[1], 
+                     str(RDF['type']): t[1],
+                     str(SCHEMA['type-label']): str(list(sg.objects(t[1],RDFS['label']))[0]), 
                      str(SCHEMA['createTime']): t[2],
                      str(DC['title']): t[3],
                      str(DC['description']): t[4],
@@ -223,13 +226,13 @@ ORDER BY DESC(?createTime)
       return rc.FORBIDDEN
 
     try:
-      #body_obj = json.loads(request.body)
+      body_obj = json.loads(request.body)
       pass
 
     except:
       return rc.BAD_REQUEST
 
-    # connect to the graph db
+    # connect to the graph store
     store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
     rt = store.open(_get_db_config_string(), create=False)
     assert rt == VALID_STORE,"The underlying store is corrupted"

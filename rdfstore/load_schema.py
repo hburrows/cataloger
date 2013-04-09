@@ -61,6 +61,7 @@ sg.bind('owl', OWL)
 sg.bind('cits', schemaNS)
 
 owlClass = OWL['Class']
+
 owlObjectProperty = OWL['ObjectProperty']
 owlDatatypeProperty = OWL['DatatypeProperty']
 
@@ -149,6 +150,7 @@ collectableSchema = [
   (schemaNS['location'], rdfsLabel, Literal('Location')),
   
   (schemaNS['images'], rdfType, RDF['Seq']),
+  (schemaNS['images'], rdfsLabel, Literal('Images at different resolutions')),
   (schemaNS['images'], rdfsDomain, schemaNS['StillImage']),
 
   (stillImageType, rdfType, owlDatatypeProperty),

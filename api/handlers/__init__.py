@@ -40,9 +40,9 @@ def get_full_json(g, uriRef):
     SELECT ?property ?label ?range ?type ?order \
     WHERE { \
       { ?property rdfs:domain <' + str(uriRef) + '> ; \
-                  rdfs:label ?label ;\
-                  sg:displayOrder ?order ; \
-                  rdf:type ?type \
+                  rdf:type ?type .\
+        OPTIONAL { ?property rdfs:label ?label } \
+        OPTIONAL { ?property sg:displayOrder ?order } \
         OPTIONAL { ?property rdfs:range ?range } \
         FILTER (STRSTARTS(STR(?type), STR(owl:DatatypeProperty)) || \
                 STRSTARTS(STR(?type), STR(owl:ObjectProperty)) || \

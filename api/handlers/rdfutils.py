@@ -5,7 +5,7 @@ Created on Apr 3, 2013
 '''
 from rdflib import BNode, Literal, URIRef, RDF, OWL, RDFS
 
-from . import get_schema_and_lookup_for, get_full_schema_for
+from . import get_schema_and_lookup_for, get_full_schema_and_lookup_for
 
 RDF_type = RDF['type']
 OWL_DatatypeProperty = OWL['DatatypeProperty']
@@ -172,7 +172,7 @@ def object_to_json(sg, ug, objectNode):
     raise Exception('Missing require RDF[\'type\']')
 
   # get the schema for the specified type
-  schema, lookup = get_schema_and_lookup_for(sg, URIRef(classURIStr))
+  schema, lookup = get_full_schema_and_lookup_for(sg, URIRef(classURIStr))
 
   objData = {}
   for pred, obj in propDict.iteritems():
