@@ -23,12 +23,15 @@ sg = Graph(store, identifier=URIRef(SCHEMA_GRAPH_URI))
 
 
 
+# RDFS and RDF vocabularies
+sg.parse('http://www.w3.org/2000/01/rdf-schema')
+sg.parse('http://www.w3.org/1999/02/22-rdf-syntax-ns')
+
 # owl
 sg.parse('http://www.w3.org/2002/07/owl')
 
-# RDFS and RDF vocabularies
-sg.parse('http://www.w3.org/2000/01/rdf-schema#')
-sg.parse('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+# ordered list ontology
+sg.parse('http://purl.org/ontology/olo/core') 
 
 # DC vocabularies
 sg.parse('http://purl.org/dc/elements/1.1/')
@@ -36,11 +39,10 @@ sg.parse('http://purl.org/dc/terms/')
 sg.parse('http://purl.org/dc/dcmitype/')
 
 # FOAF
-#sg.parse('http://xmlns.com/foaf/0.1/')
 sg.parse('http://xmlns.com/foaf/spec/20100809.rdf')
 
 # GEO - i.e. latitude and longitude
-sg.parse('http://www.w3.org/2003/01/geo/wgs84_pos#')
+sg.parse('http://www.w3.org/2003/01/geo/wgs84_pos')
 
 
 sg.commit()
@@ -322,7 +324,8 @@ collectableSchema = [
 for t in collectableSchema: sg.add(t)
 
 sg.commit()
-
+citg.commit()
+store.commit()
 
 #lifeLoggerNS = Namespace(BASE_GRAPH_URI + '_lifelogger/')
 #
@@ -337,8 +340,8 @@ sg.commit()
 #watchedClass = lifeLoggerNS['Watched']
 #feltClass = lifeLoggerNS['Felt']
 
-sg.commit()
-
+sg.close()
 citg.close()
+store.close()
 
 print "Successfully loaded schema."

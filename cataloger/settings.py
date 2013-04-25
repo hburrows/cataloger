@@ -179,3 +179,6 @@ if not DEBUG:
 	STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 	S3_URL = 'https://s3.amazonaws.com/{0}/'.format(AWS_STORAGE_BUCKET_NAME)
 	STATIC_URL = S3_URL
+
+SPARQL_QUERY_ENDPOINT = 'http://localhost:3030/ct/query'
+SPARQL_UPDATE_ENDPOINT = 'http://localhost:3030/ct/update'

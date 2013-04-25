@@ -6,20 +6,18 @@ Created on Oct 19, 2012
 
 import logging
 import json
-import urllib
-import calendar
-from datetime import datetime
 
 from piston.handler import BaseHandler
 from piston.utils import rc
 
-from rdflib import URIRef, Graph, Namespace, Literal, plugin
-from rdflib.store import Store, VALID_STORE
-from rdflib import RDF, RDFS, OWL
+from rdflib import URIRef, Namespace
+from rdflib import RDF
+
+from . import sparql_query
 
 from api.models import Entry
 
-from api import _get_db_config_string, SCHEMA_GRAPH_URI, USER_GRAPH_URI, DATABASE_STORE
+from api import COMMON_GRAPH_URI, USER_GRAPH_URI
 
 from . import SCHEMA
 
@@ -27,27 +25,12 @@ import rdfutils
 
 logger = logging.getLogger(__name__)
 
-def _get_entry_json_obj(ug, sg, entryURIRef):
-
-  data = rdfutils.object_to_json(sg, ug, entryURIRef)
   
-  data['id'] = str(entryURIRef)
-
-  return data;
-    
 class UserEntryHandler(BaseHandler):
 
   allowed_methods = ('GET', 'POST', 'PUT', 'DELETE')
 
   fields = ('name', 'email')
-
-  def _get_image_json_obj(self, entry):
-    images_obj = []
-    images = entry.entryimage_set.all()
-    if images:
-      for image in images:
-        images_obj.append(image.to_json_obj());
-    return images_obj
 
   def read(self, request, user_id, entry_id=None):
     
@@ -59,17 +42,9 @@ class UserEntryHandler(BaseHandler):
     if not request.user.is_superuser and int(user_id) != request.user.id:
       return rc.FORBIDDEN
 
-    store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
-
-    rt = store.open(_get_db_config_string(), create=False)
-    assert rt == VALID_STORE,"The underlying store is corrupted"
-
     try:
 
-      ugURI = str(USER_GRAPH_URI).format(userId=user_id)
-
-      ug = Graph(store, identifier=URIRef(ugURI))
-      sg = Graph(store, identifier=URIRef(SCHEMA_GRAPH_URI))
+      USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
 
       DC = Namespace('http://purl.org/dc/elements/1.1/')
 
@@ -77,74 +52,77 @@ class UserEntryHandler(BaseHandler):
       
       if entry_id:
 
-        result = _get_entry_json_obj(ug, sg, URIRef(entry_id))
+        result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, entry_id)
 
       else:
 
         # check for filter criteria; if none exists default to all items
-        parentClass = None
+        root_type_uri = None
         if 'filter' in request.GET:
-          parentClass = SCHEMA[request.GET['filter']]
+          root_type_uri = SCHEMA[request.GET['filter']]
         else:
-          parentClass = SCHEMA['Collectable']
+          root_type_uri = SCHEMA['Collectable']
 
-        # get the list of candidate classes from the schema graph and then query the user's
-        # graph for all instances of those classes and order them by creation time
-        candidateClasses = sg.transitive_subjects(RDFS['subClassOf'], parentClass)
-        
-        filterStr = None
-        for cc in candidateClasses:
-          filterStr = '{0} || STRSTARTS(STR(?class), "{1}")'.format(filterStr, cc) if filterStr else 'STRSTARTS(STR(?class), "{0}")'.format(cc)
-
-        template = '''
+          rq_tmpl = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
-PREFIX sg: <http://example.com/rdf/schemas/>
-PREFIX : <{0}>
-SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL ?typeLabel
+PREFIX cg: <{cg}>
+PREFIX : <{ug}>
+SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL ?classLabel
+#FROM NAMED <{ug}>
+#FROM NAMED <{cg}>
 WHERE {{
-  ?s rdf:type ?class ;
-      sg:createTime ?createTime .
-  # ?class rdfs:label ?typeLabel .
-  OPTIONAL {{ ?s sg:media ?media }}
-  OPTIONAL {{ ?s dc:title ?title }}             
-  OPTIONAL {{ ?s dc:description ?description }}             
-  OPTIONAL {{ ?s sg:acquirePrice ?acquirePrice }}
-  
-  OPTIONAL {{
-    # get the media
-    ?s sg:media ?media .
-    ?media ?seq_index ?media_item .
-    ?media_item rdf:type <http://example.com/rdf/schemas/StillImage> .
-    ?media_item sg:images ?media_item_seq .
-    ?media_item_seq ?media_item_seq_index ?media_item_instance .
-    ?media_item_instance sg:stillImageType "thumbnail" .
-    ?media_item_instance sg:stillImageURL ?thumbnailURL .
-  }}      
-  FILTER ({1}) 
-}} 
+  {{
+    GRAPH cg: {{
+      <{type}> rdfs:label ?classLabel .
+      BIND (<{type}> AS ?class)
+    }}
+  }}
+  UNION
+  {{
+    GRAPH cg: {{
+      ?class rdfs:subClassOf+ <{type}> .
+      ?class rdfs:label ?classLabel .
+    }}
+  }}
+  GRAPH : {{
+    ?s rdf:type ?class .
+    ?s cg:createTime ?createTime .
+    OPTIONAL {{ ?s dc:title ?title }}             
+    OPTIONAL {{ ?s dc:description ?description }}             
+    OPTIONAL {{ ?s cg:acquirePrice ?acquirePrice }}
+    OPTIONAL {{
+      # get the thumbnail image for the first StillImage media object
+      ?s cg:media ?media .
+      ?media ?seq_index ?media_item .
+      ?media_item rdf:type cg:StillImage .
+      ?media_item cg:images ?media_item_seq .
+      ?media_item_seq ?media_item_seq_index ?media_item_instance .
+      ?media_item_instance cg:stillImageType "thumbnail" .
+      ?media_item_instance cg:stillImageURL ?thumbnailURL .
+    }}      
+  }}
+}}
 ORDER BY DESC(?createTime)
 '''
-        q = template.format(ugURI, filterStr)
-        
-        rs = ug.query(q)
-        
-        result = [{'id': t[0],
-                   'data': {
-                     str(RDF['type']): t[1],
-                     str(SCHEMA['type-label']): str(list(sg.objects(t[1],RDFS['label']))[0]), 
-                     str(SCHEMA['createTime']): t[2],
-                     str(DC['title']): t[3],
-                     str(DC['description']): t[4],
-                     str(SCHEMA['acquirePrice']): t[5],
-                     str(SCHEMA['stillImageURL']): t[6]
-                   },
-                   'schema': None } for t in rs]
-                   
 
-    finally:
-      store.close()
+        rq = rq_tmpl.format(type=root_type_uri, ug=USER, cg=COMMON_GRAPH_URI)
+
+        result = [{'id': t['s']['value'],
+                   'data': {
+                     str(RDF['type']): t['class']['value'],
+                     str(SCHEMA['type-label']): t['classLabel']['value'], 
+                     str(SCHEMA['createTime']): t['createTime']['value'],
+                     str(DC['title']): t['title']['value'] if 'title' in t else None,
+                     str(DC['description']): t['description']['value'] if 'description' in t else None,
+                     str(SCHEMA['acquirePrice']): t['acquirePrice']['value'] if 'acquirePrice' in t else None,
+                     str(SCHEMA['stillImageURL']): t['thumbnailURL']['value'] if 'thumbnailURL' in t else None
+                   },
+                   'schema': None } for t in sparql_query(rq)["results"]["bindings"]]
+        
+    except Exception, e:
+      raise e
 
     return result
 
@@ -183,35 +161,20 @@ ORDER BY DESC(?createTime)
       resp.write(' - ' + str(e))
       return resp
 
-    # connect to the graph db
-    store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
-    rt = store.open(_get_db_config_string(), create=False)
-    assert rt == VALID_STORE,"The underlying store is corrupted"
-
     try:
 
       USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
 
-      ug = Graph(store, identifier=URIRef(USER))
-      sg = Graph(store, identifier=URIRef(SCHEMA))
-
       # inject id into JSON
-      body_obj['id'] = USER[str(entry.id)]
+      entry_uri = USER[str(entry.id)]
+      body_obj['id'] = entry_uri 
 
-      entryURIRef = rdfutils.object_from_json(sg, ug, body_obj, None, None)
-      
-      now = datetime.now()
-      timestamp = calendar.timegm(now.timetuple())
-       
-      ug.add((entryURIRef, SCHEMA['createTime'], Literal(timestamp)))
-      ug.add((entryURIRef, SCHEMA['updateTime'], Literal(timestamp)))
-      
-      ug.commit()
+      rdfutils.update_from_json(USER, COMMON_GRAPH_URI, entry_uri, body_obj)
 
-      result = _get_entry_json_obj(ug, sg, entryURIRef)
+      result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, entry_uri)
 
-    finally:
-      store.close()
+    except:
+      raise
 
     return result
   
@@ -227,26 +190,30 @@ ORDER BY DESC(?createTime)
 
     try:
       body_obj = json.loads(request.body)
-      pass
+      
+      if not body_obj.get('id'):
+        resp = rc.BAD_REQUEST
+        resp.write('.  Missing required \'id\' property')
+        return resp
 
     except:
-      return rc.BAD_REQUEST
-
-    # connect to the graph store
-    store = plugin.get(DATABASE_STORE, Store)(identifier='rdfstore')
-    rt = store.open(_get_db_config_string(), create=False)
-    assert rt == VALID_STORE,"The underlying store is corrupted"
+      resp = rc.BAD_REQUEST
+      resp.write('.  Error parsing JSON')
+      return resp
 
     try:
+      
       USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
 
-      ug = Graph(store, identifier=URIRef(USER))
-      sg = Graph(store, identifier=URIRef(SCHEMA))
+      # inject id into JSON
+      entry_uri = body_obj['id']
 
-      result = _get_entry_json_obj(ug, sg, URIRef(entry_id))
+      rdfutils.update_from_json(USER, COMMON_GRAPH_URI, entry_uri, body_obj)
 
-    finally:
-      store.close()
+      result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, entry_uri)
+
+    except Exception, e:
+      raise e
 
     return result
 
