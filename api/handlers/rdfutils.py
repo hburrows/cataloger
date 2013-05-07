@@ -27,7 +27,7 @@ RDF_Property = RDF['Property']
 RDFS_Class = RDFS['Class']
 
 
-def seq_to_json(cg_uri, ug_uri, subject_uri, predicates=None):
+def seq_to_json(cg_uri, ug_uri, subject_uri, predicates=None, schema=None):
 
   predicates = predicates if predicates else []
 
@@ -61,13 +61,28 @@ WHERE {{
         raise Exception('Invalid type -- expected type to be sequence')
       continue
 
-    obj_type = result['object']['type']
+    obj_data_type = result['object']['type']
     obj_json = None
-    if obj_type == 'literal':
+    if obj_data_type == 'literal':
       obj_json = Literal(result['object']['value'])
-    elif obj_type == 'uri':
-      obj_json = URIRef(result['object']['value'])
-    elif obj_type == 'bnode':
+    elif obj_data_type == 'uri':
+      
+      object_uri = URIRef(result['object']['value'])
+
+      # embed the object depending on schema definition
+      if schema.get('embed', False):
+      
+        object_rdf_type = result['type']['value']
+
+        if object_rdf_type == RDF['Seq']:
+          obj_json = seq_to_json(cg_uri, ug_uri, object_uri)
+        else:
+          obj_json = object_to_json(cg_uri, ug_uri, object_uri)
+
+      else:
+        obj_json = {'id': object_uri}
+
+    elif obj_data_type == 'bnode':
       
       bnode_type = result['type']['value']
 
@@ -81,7 +96,7 @@ WHERE {{
       predicates.pop()
 
     else:
-      raise Exception("Unsupported type: {0]".format(obj_type))
+      raise Exception("Unsupported type: {0]".format(obj_data_type))
 
     objData.append(obj_json)
 
@@ -112,10 +127,10 @@ WHERE {{
 
   propDict = {}
   for result in sparql_query(rq)["results"]["bindings"]:
-    obj_type = result['object']['type']
-    if obj_type == 'literal':
+    obj_data_type = result['object']['type']
+    if obj_data_type == 'literal':
       propDict[result['predicate']['value']] = Literal(result['object']['value'])
-    elif obj_type == 'typed-literal':
+    elif obj_data_type == 'typed-literal':
 
       datatype = result['object']['datatype']
       literal = None
@@ -128,12 +143,12 @@ WHERE {{
       else:
         literal = result['object']['value']
       propDict[result['predicate']['value']] = Literal(literal)
-    elif obj_type == 'uri':
+    elif obj_data_type == 'uri':
       propDict[result['predicate']['value']] = URIRef(result['object']['value'])
-    elif obj_type == 'bnode':
+    elif obj_data_type == 'bnode':
       propDict[result['predicate']['value']] = BNode(result['object']['value'])
     else:
-      raise Exception("Unrecognized type: {0}".format(obj_type))
+      raise Exception("Unrecognized type: {0}".format(obj_data_type))
 
 
   # get the type so we can get the schema
@@ -165,7 +180,7 @@ WHERE {{
       
       # sequence
       elif typeUri == str(RDF['Seq']):
-        objData[pred] = seq_to_json(cg_uri, ug_uri, entry_uri, predicates)
+        objData[pred] = seq_to_json(cg_uri, ug_uri, entry_uri, predicates, predSchema)
 
       else:
         raise Exception("Unsupported type: {0}".format(typeUri))
@@ -293,6 +308,11 @@ def _insert_triple_frag(predicate, obj_json, pred_metadata):
 
 def _insert_object_frag(predicate, obj_json):
 
+  if 'id' in obj_json:
+    # ??? NO check if object actually represents required range.  Perform
+    #     lookup and ensure compatibility
+    return '<{0}> <{1}>'.format(predicate, obj_json['id'])
+
   # predicate/object data
   po_data = obj_json.get('data', {})
   
@@ -413,7 +433,6 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX : <{ug_uri}>
 SELECT ?p ?o
-FROM NAMED <{ug_uri}>
 WHERE {{
   GRAPH : {{
     <{subject}> ?p ?o .

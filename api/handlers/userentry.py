@@ -6,20 +6,22 @@ Created on Oct 19, 2012
 
 import logging
 import json
+import calendar
+import uuid
+
+import dateutil.parser
 
 from piston.handler import BaseHandler
 from piston.utils import rc
 
-from rdflib import URIRef, Namespace
-from rdflib import RDF
-
-from . import sparql_query
+from rdflib import URIRef, Namespace, RDF
 
 from api.models import Entry
 
 from api import COMMON_GRAPH_URI, USER_GRAPH_URI
 
-from . import SCHEMA
+from . import sparql_query, SCHEMA
+
 
 import rdfutils
 
@@ -70,8 +72,6 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX cg: <{cg}>
 PREFIX : <{ug}>
 SELECT ?s ?class ?createTime ?title ?description ?acquirePrice ?thumbnailURL ?classLabel
-#FROM NAMED <{ug}>
-#FROM NAMED <{cg}>
 WHERE {{
   {{
     GRAPH cg: {{
@@ -110,17 +110,18 @@ ORDER BY DESC(?createTime)
         rq = rq_tmpl.format(type=root_type_uri, ug=USER, cg=COMMON_GRAPH_URI)
 
         result = [{'id': t['s']['value'],
+                   'graph': USER,
                    'data': {
                      str(RDF['type']): t['class']['value'],
                      str(SCHEMA['type-label']): t['classLabel']['value'], 
-                     str(SCHEMA['createTime']): t['createTime']['value'],
+                     str(SCHEMA['createTime']): calendar.timegm(dateutil.parser.parse(t['createTime']['value']).timetuple()),
                      str(DC['title']): t['title']['value'] if 'title' in t else None,
                      str(DC['description']): t['description']['value'] if 'description' in t else None,
                      str(SCHEMA['acquirePrice']): t['acquirePrice']['value'] if 'acquirePrice' in t else None,
                      str(SCHEMA['stillImageURL']): t['thumbnailURL']['value'] if 'thumbnailURL' in t else None
                    },
                    'schema': None } for t in sparql_query(rq)["results"]["bindings"]]
-        
+
     except Exception, e:
       raise e
 
@@ -141,7 +142,6 @@ ORDER BY DESC(?createTime)
   
     try:
       body_obj = json.loads(request.body)
-      
     except:
       return rc.BAD_REQUEST
 
@@ -153,25 +153,28 @@ ORDER BY DESC(?createTime)
       resp.write (' - missing required predicate: ' + rdfTypeStr)
       return resp
 
-    try:
-      entry = Entry(user_id=user_id)
-      entry.save()
-    except Exception, e:
-      resp = rc.INTERNAL_ERROR
-      resp.write(' - ' + str(e))
-      return resp
+#     try:
+#       entry = Entry(user_id=user_id)
+#       entry.save()
+#       subjectId = str(entry.id)
+#     except Exception, e:
+#       resp = rc.INTERNAL_ERROR
+#       resp.write(' - ' + str(e))
+#       return resp
+
+    USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
+
+    subjectId = uuid.uuid4().hex
+    
+    # inject the new subject-id into the JSON
+    subject_uri = USER[subjectId]
+    body_obj['id'] = subject_uri 
 
     try:
 
-      USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
+      rdfutils.update_from_json(USER, COMMON_GRAPH_URI, subject_uri, body_obj)
 
-      # inject id into JSON
-      entry_uri = USER[str(entry.id)]
-      body_obj['id'] = entry_uri 
-
-      rdfutils.update_from_json(USER, COMMON_GRAPH_URI, entry_uri, body_obj)
-
-      result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, entry_uri)
+      result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, subject_uri)
 
     except:
       raise

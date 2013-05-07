@@ -17,14 +17,23 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': 'catalogit',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': 'howard',
-        'PASSWORD': '',
-        'HOST': '/tmp/',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
+        'PASSWORD': 'd#vel0p',
+        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': '3306',                      # Set to empty string for default.
     }
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+#         'NAME': 'catalogit',                      # Or path to database file if using sqlite3.
+#         # The following settings are not used with sqlite3:
+#         'USER': 'howard',
+#         'PASSWORD': '',
+#         'HOST': '/tmp/',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+#         'PORT': '',                      # Set to empty string for default.
+#     }
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -130,8 +139,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'piston',
+    'south',
 		'storages',
-    'api'    
+    'api'
 )
 
 # A sample logging configuration. The only tangible logging
@@ -180,5 +190,9 @@ if not DEBUG:
 	S3_URL = 'https://s3.amazonaws.com/{0}/'.format(AWS_STORAGE_BUCKET_NAME)
 	STATIC_URL = S3_URL
 
-SPARQL_QUERY_ENDPOINT = 'http://localhost:3030/ct/query'
-SPARQL_UPDATE_ENDPOINT = 'http://localhost:3030/ct/update'
+
+# SPARQL_ENDPOINT = 'http://localhost:3030/ct/' 
+SPARQL_ENDPOINT = 'http://hellssatans:3030/ct/' 
+
+SPARQL_QUERY_ENDPOINT = SPARQL_ENDPOINT + 'query'
+SPARQL_UPDATE_ENDPOINT = SPARQL_ENDPOINT + 'update'

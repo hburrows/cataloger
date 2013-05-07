@@ -27,8 +27,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX : <{sg}>
-SELECT ?property ?label ?range ?type ?comment
-FROM NAMED <{sg}>
+SELECT ?property ?label ?range ?type ?comment ?embed
 WHERE
 {{
   GRAPH <{sg}>
@@ -39,6 +38,7 @@ WHERE
     OPTIONAL {{ ?property rdfs:label ?label . }}
     OPTIONAL {{ ?property rdfs:comment ?comment . }}
     OPTIONAL {{ ?property :displayOrder ?order . }}
+    OPTIONAL {{ ?property :embed ?embed . }}
     FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
   }}
 }}
@@ -57,7 +57,8 @@ ORDER BY (?order)'''
       'label': result['label']['value'] if 'label' in result else None,
       'range': result['range']['value'] if 'range' in result else None,
       'type': result['type']['value'],
-      'comment': result['comment']['value'] if 'comment' in result else None
+      'comment': result['comment']['value'] if 'comment' in result else None,
+      'embed': result['embed']['value'] if 'embed' in result else False
     })
 
 #   t1 = time()

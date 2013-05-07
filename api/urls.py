@@ -10,6 +10,7 @@ from handlers.classes import ClassesHandler
 from handlers.properties import PropertiesHandler
 
 from handlers import (
+  usersubject,
   userentry,
   images
 )
@@ -30,6 +31,7 @@ logout_handler = CORSResource(LogoutHandler)
 users_handler = CORSResource(UsersHandler)
 classes_handler = CORSResource(ClassesHandler)
 properties_handler = CORSResource(PropertiesHandler)
+user_subject_handler = CORSResource(usersubject.SubjectEntryHandler, **ad)
 user_entry_handler = CORSResource(userentry.UserEntryHandler, **ad)
 
 user_image_handler = CORSResource(images.UserImagesHandler, **ad)
@@ -63,6 +65,9 @@ urlpatterns += patterns('api.views.user',
 
   # get list of all properties for a specified class
   url(r'^classes/(?P<class_id>\S+)/$', properties_handler, { 'emitter_format': 'json' }),
+
+  url(r'^users/(?P<user_id>self|\d+)/subjects/$', user_subject_handler, { 'emitter_format': 'json' }),
+  url(r'^users/(?P<user_id>self|\d+)/subjects/(?P<subject_id>\S+)/$', user_subject_handler, { 'emitter_format': 'json' }),
 
   url(r'^users/(?P<user_id>self|\d+)/entries/$', user_entry_handler, { 'emitter_format': 'json' }),
   url(r'^users/(?P<user_id>self|\d+)/entries/(?P<entry_id>\S+)/$', user_entry_handler, { 'emitter_format': 'json' }),
