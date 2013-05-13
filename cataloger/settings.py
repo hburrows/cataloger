@@ -12,6 +12,8 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
+SERVER_ENDPOINT = 'hellssatans'
+
 # Move up to the root of the project
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,7 +26,7 @@ DATABASES = {
         # The following settings are not used with sqlite3:
         'USER': 'cit',
         'PASSWORD': 'cit',
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'HOST': SERVER_ENDPOINT,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '3306',                      # Set to empty string for default.
     }
 #     'default': {
@@ -193,8 +195,8 @@ if not DEBUG:
 	STATIC_URL = S3_URL
 
 
-SPARQL_ENDPOINT = 'http://localhost:3030/ct/' 
-# SPARQL_ENDPOINT = 'http://hellssatans:3030/ct/' 
+# SPARQL_ENDPOINT = 'http://' + SERVER_ENDPOINT + ':3030/ct/' 
+SPARQL_ENDPOINT = 'http://' + SERVER_ENDPOINT + ':3030/ct/' 
 
 SPARQL_QUERY_ENDPOINT = SPARQL_ENDPOINT + 'query'
 SPARQL_UPDATE_ENDPOINT = SPARQL_ENDPOINT + 'update'

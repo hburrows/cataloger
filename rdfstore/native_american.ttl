@@ -16,7 +16,7 @@ natam:Basket rdfs:label 'Basket' .
 natam:Basket rdfs:comment 'Basket comment' .
 natam:Basket rdfs:subClassOf common:Collectable .
 natam:Basket common:isDefinedBy 'catalogit' .
-natom:Basket rdfs:isDefinedBy 'catalogit' .
+natam:Basket rdfs:isDefinedBy 'catalogit' .
 natam:Basket common:isUsedFor 'primary' .
 
 natam:Rug rdf:type owl:Class .
