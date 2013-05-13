@@ -1,0 +1,54 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+
+@prefix household: <http://example.com/rdf/schemas/community/musical_instruments/> .
+
+household:Household rdf:type owl:Class .
+household:Household rdfs:label 'Household Item' .
+household:Household rdfs:comment 'Any item found in a typical household - furniture, art, cooking items, sports, toys, etc.' .
+household:Household rdfs:subClassOf common:Collectable .
+household:Household rdfs:isDefinedBy 'catalogit' .
+household:Household common:isUsedFor 'primary' .
+
+household:Kitchen rdf:type owl:Class .
+household:Kitchen rdfs:label 'Kitchen Item' .
+household:Kitchen rdfs:comment 'Kitchen item - appliances, utensils, storage, etc.' .
+household:Kitchen rdfs:subClassOf household:Household .
+household:Kitchen rdfs:isDefinedBy 'catalogit' .
+household:Kitchen common:isUsedFor 'primary' .
+
+household:Garage rdf:type owl:Class .
+household:Garage rdfs:label 'Garage Item' .
+household:Garage rdfs:comment 'Garage item - cars, tools, gardening, storage, etc.' .
+household:Garage rdfs:subClassOf household:Household .
+household:Garage rdfs:isDefinedBy 'catalogit' .
+household:Garage common:isUsedFor 'primary' .
+
+household:Bedroom rdf:type owl:Class .
+household:Bedroom rdfs:label 'Bedroom Item' .
+household:Bedroom rdfs:comment 'Bedroom item - clothing, beds, furniture, art, etc.' .
+household:Bedroom rdfs:subClassOf household:Household .
+household:Bedroom rdfs:isDefinedBy 'catalogit' .
+household:Bedroom common:isUsedFor 'primary' .
+
+household:LivingRoom rdf:type owl:Class .
+household:LivingRoom rdfs:label 'Living Room Item' .
+household:LivingRoom rdfs:comment 'Living room item - furniture, art, rugs, lighting' .
+household:LivingRoom rdfs:subClassOf household:Household .
+household:LivingRoom rdfs:isDefinedBy 'catalogit' .
+household:LivingRoom common:isUsedFor 'primary' .
+
+household:DiningRoom rdf:type owl:Class .
+household:DiningRoom rdfs:label 'Dining Room Item' .
+household:DiningRoom rdfs:comment 'Dining room item - table, chairs, art, rugs, lighting, china, silver, etc.' .
+household:DiningRoom rdfs:subClassOf household:Household .
+household:DiningRoom rdfs:isDefinedBy 'catalogit' .
+household:DiningRoom common:isUsedFor 'primary' .

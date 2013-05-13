@@ -14,8 +14,6 @@ from piston.handler import BaseHandler
 from piston.utils import rc
 
 
-#from api.models import User
-
 class UsersHandler(BaseHandler):
 
   allowed_methods = ('GET', 'POST')
@@ -83,7 +81,7 @@ class UsersHandler(BaseHandler):
         user.save()
 
     except:
-      pass
+      raise
 
     return user
 

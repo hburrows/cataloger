@@ -5,6 +5,8 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+AUTH_PROFILE_MODULE = 'api.models.UserProfile'
+
 ADMINS = (
     ('Howard Burrows', 'howard.burrows@gmail.com'),
     # ('Your Name', 'your_email@example.com'),
@@ -191,8 +193,8 @@ if not DEBUG:
 	STATIC_URL = S3_URL
 
 
-# SPARQL_ENDPOINT = 'http://localhost:3030/ct/' 
-SPARQL_ENDPOINT = 'http://hellssatans:3030/ct/' 
+SPARQL_ENDPOINT = 'http://localhost:3030/ct/' 
+# SPARQL_ENDPOINT = 'http://hellssatans:3030/ct/' 
 
 SPARQL_QUERY_ENDPOINT = SPARQL_ENDPOINT + 'query'
 SPARQL_UPDATE_ENDPOINT = SPARQL_ENDPOINT + 'update'

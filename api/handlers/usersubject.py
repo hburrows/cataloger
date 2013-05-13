@@ -13,7 +13,7 @@ from piston.utils import rc
 from rdflib import Namespace, RDF
 from api import COMMON_GRAPH_URI, USER_GRAPH_URI
 
-from . import sparql_query, SCHEMA
+from . import sparql_query, SCHEMA, sparql_froms_for_user
 
 import rdfutils
 
@@ -44,7 +44,7 @@ class SubjectEntryHandler(BaseHandler):
       
       if subject_id:
 
-        result = rdfutils.object_to_json(COMMON_GRAPH_URI, USER, subject_id)
+        result = rdfutils.object_to_json(sparql_froms_for_user(request.user), COMMON_GRAPH_URI, USER, subject_id)
 
       else:
 

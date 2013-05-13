@@ -27,7 +27,7 @@ RDF_Property = RDF['Property']
 RDFS_Class = RDFS['Class']
 
 
-def seq_to_json(cg_uri, ug_uri, subject_uri, predicates=None, schema=None):
+def seq_to_json(graphs, cg_uri, ug_uri, subject_uri, predicates=None, schema=None):
 
   predicates = predicates if predicates else []
 
@@ -75,9 +75,9 @@ WHERE {{
         object_rdf_type = result['type']['value']
 
         if object_rdf_type == RDF['Seq']:
-          obj_json = seq_to_json(cg_uri, ug_uri, object_uri)
+          obj_json = seq_to_json(graphs, cg_uri, ug_uri, object_uri)
         else:
-          obj_json = object_to_json(cg_uri, ug_uri, object_uri)
+          obj_json = object_to_json(graphs, cg_uri, ug_uri, object_uri)
 
       else:
         obj_json = {'id': object_uri}
@@ -89,9 +89,9 @@ WHERE {{
       predicates.append(predicate)
 
       if bnode_type == RDF['Seq']:
-        obj_json = seq_to_json(cg_uri, ug_uri, subject_uri, predicates)
+        obj_json = seq_to_json(graphs, cg_uri, ug_uri, subject_uri, predicates)
       else:
-        obj_json = object_to_json(cg_uri, ug_uri, subject_uri, predicates)
+        obj_json = object_to_json(graphs, cg_uri, ug_uri, subject_uri, predicates)
 
       predicates.pop()
 
@@ -104,7 +104,7 @@ WHERE {{
 
 
 
-def object_to_json(cg_uri, ug_uri, entry_uri, predicates=None):
+def object_to_json(graphs, cg_uri, ug_uri, entry_uri, predicates=None):
 
   predicates = predicates if predicates else []
 
@@ -158,7 +158,7 @@ WHERE {{
     raise Exception('Missing require RDF[\'type\']')
 
   # get the schema for the specified type
-  schema, lookup = get_full_schema_and_lookup_for(type_uri)
+  schema, lookup = get_full_schema_and_lookup_for(graphs, type_uri)
 
   objData = {}
   for pred, obj in propDict.iteritems():
@@ -176,11 +176,11 @@ WHERE {{
       # object
       if typeUri == str(OWL_ObjectProperty) or typeUri == str(RDFS_Class):
         # generalize object creation -- objects are either BNode or URIRefs
-        objData[pred] = object_to_json(cg_uri, ug_uri, entry_uri, predicates)
+        objData[pred] = object_to_json(graphs, cg_uri, ug_uri, entry_uri, predicates)
       
       # sequence
       elif typeUri == str(RDF['Seq']):
-        objData[pred] = seq_to_json(cg_uri, ug_uri, entry_uri, predicates, predSchema)
+        objData[pred] = seq_to_json(graphs, cg_uri, ug_uri, entry_uri, predicates, predSchema)
 
       else:
         raise Exception("Unsupported type: {0}".format(typeUri))
@@ -227,7 +227,7 @@ def _delete_triple(ug_uri, subject, predicate, obj):
 
 
 
-def _insert_triple_frag(predicate, obj_json, pred_metadata):
+def _insert_triple_frag(graphs, predicate, obj_json, pred_metadata):
 
   frag = None
 
@@ -256,7 +256,7 @@ def _insert_triple_frag(predicate, obj_json, pred_metadata):
       # bnode
       # [ ... ] .
 
-      frag = _insert_object_frag(predicate, obj_json)
+      frag = _insert_object_frag(graphs, predicate, obj_json)
         
     elif isinstance(obj_json, basestring):
       # uriref
@@ -289,7 +289,7 @@ def _insert_triple_frag(predicate, obj_json, pred_metadata):
 
       el_predicate = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#_{0}'.format(idx+1)
       
-      frag = _insert_object_frag(el_predicate, el_json)
+      frag = _insert_object_frag(graphs, el_predicate, el_json)
 
       po_frags.append(frag)
       
@@ -306,7 +306,7 @@ def _insert_triple_frag(predicate, obj_json, pred_metadata):
   return frag
 
 
-def _insert_object_frag(predicate, obj_json):
+def _insert_object_frag(graphs, predicate, obj_json):
 
   if 'id' in obj_json:
     # ??? NO check if object actually represents required range.  Perform
@@ -322,7 +322,7 @@ def _insert_object_frag(predicate, obj_json):
     raise Exception("Missing require RDF['type']")
   
   # describe the type
-  schema, lookup = get_schema_and_lookup_for(type_uri)
+  schema, lookup = get_schema_and_lookup_for(graphs, type_uri)
   
   # for each item in data determine if new or exists and INSERT OR UPDATE as appropriate
   #
@@ -335,7 +335,7 @@ def _insert_object_frag(predicate, obj_json):
 #       print "  assume CUSTOM property, skipping for now"
 #       continue
     
-    po_frags.append(_insert_triple_frag(prop_p, prop_o, pred_metadata))
+    po_frags.append(_insert_triple_frag(graphs, prop_p, prop_o, pred_metadata))
     
   frag = '<{0}> [ {1} ]'.format(predicate, ' ; '.join(po_frags))
   
@@ -411,15 +411,15 @@ def _update_object_frag(sg_uri, ug_uri, predicate, new_json, existing_json):
 '''
    MAIN update driver
 '''
-def update_from_json(ug_uri, sg_uri, subject, jsonObj):
+def update_from_json(graphs, ug_uri, sg_uri, subject, jsonObj):
 
   # predicate/object data
   po_data = jsonObj.get('data', {})
 
   # remove createTime and updateTime from input data as these are
   # handle specially
-  po_data.pop('http://example.com/rdf/schemas/createTime', None)
-  po_data.pop('http://example.com/rdf/schemas/updateTime', None)
+  po_data.pop(str(COMMON['createTime']), None)
+  po_data.pop(str(COMMON['updateTime']), None)
   
   # determine class of subject
   type_str = po_data.get(str(RDF_type))
@@ -433,6 +433,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX : <{ug_uri}>
 SELECT ?p ?o
+FROM NAMED <{ug_uri}>
 WHERE {{
   GRAPH : {{
     <{subject}> ?p ?o .
@@ -456,17 +457,17 @@ WHERE {{
   if str(COMMON['createTime']) not in existingProps:
     insert_frags.append('<{0}> {1} "{2}"^^xsd:dateTime'.format(subject, "common:createTime", datetime.now().isoformat()))
   else:
-    del existingProps['http://example.com/rdf/schemas/createTime']
+    del existingProps[str(COMMON['createTime'])]
     
   if str(COMMON['updateTime']) in existingProps:
     update_frags.append('WITH : DELETE {{ <{subject}> common:updateTime ?o }} INSERT {{ <{subject}> common:updateTime "{time}"^^xsd:dateTime }} WHERE {{ <{subject}> common:updateTime ?o }}'.format(subject=subject, time=datetime.now().isoformat()))
-    del existingProps['http://example.com/rdf/schemas/updateTime']
+    del existingProps[str(COMMON['updateTime'])]
   else:
     insert_frags.append('<{0}> {1} "{2}"^^xsd:dateTime'.format(subject, "common:updateTime", datetime.now().isoformat()))
 
   # get the schema for the specified type so we have property meta-data available
   # as a guide to assist in interpreting objects
-  schema, lookup = get_schema_and_lookup_for(type_str)
+  schema, lookup = get_schema_and_lookup_for(graphs, type_str)
 
   # for each item in data determine if new or existing and INSERT OR UPDATE as appropriate
   #
@@ -486,7 +487,7 @@ WHERE {{
 
     else:
       # insert      
-      insert_frags.append('<{0}> {1}'.format(subject, _insert_triple_frag(predicate, obj_json, pred_metadata)))
+      insert_frags.append('<{0}> {1}'.format(subject, _insert_triple_frag(graphs, predicate, obj_json, pred_metadata)))
 
   # INSERTS to graph
   #

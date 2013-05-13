@@ -5,6 +5,17 @@
 ### Principles
 // universally represent everything as -- of which any property can be missing
 
+		ID, DATA, SCHEMA, GRAPH
+		
+		* id: is the graph unique identifier of object
+		* type: must be encoded in data via rdf:type
+		* schema: fully describes the object
+		* predicate not represented - in case object is related to a subject via predicate connection
+		
+		* graph: experimental - identifies home graph of object.  ??? Since id is a url can't home graph be inferred by it?
+
+		----
+		
     ID, VALUE, TYPE, SCHEMA
 
    OR

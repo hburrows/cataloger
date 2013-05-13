@@ -10,9 +10,12 @@ from handlers.classes import ClassesHandler
 from handlers.properties import PropertiesHandler
 
 from handlers import (
+  usergraphs,
+  userclasses,
   usersubject,
   userentry,
-  images
+  images,
+  graphs
 )
 
 '''
@@ -30,7 +33,10 @@ login_handler = CORSResource(LoginHandler)
 logout_handler = CORSResource(LogoutHandler)
 users_handler = CORSResource(UsersHandler)
 classes_handler = CORSResource(ClassesHandler)
+graphs_handler = CORSResource(graphs.GraphsHandler)
 properties_handler = CORSResource(PropertiesHandler)
+user_graphs_handler = CORSResource(usergraphs.UserGraphsHandler, **ad)
+user_classes_handler = CORSResource(userclasses.UserClassesHandler, **ad)
 user_subject_handler = CORSResource(usersubject.SubjectEntryHandler, **ad)
 user_entry_handler = CORSResource(userentry.UserEntryHandler, **ad)
 
@@ -60,11 +66,19 @@ urlpatterns += patterns('api.views.user',
   url(r'^users/(?P<user_id>\d+)/$', users_handler, { 'emitter_format': 'json' }),
   url(r'^users/(?P<user_id>self)/$', users_handler, { 'emitter_format': 'json' }),
 
+  # get list of all available graphs
+  url(r'^graphs/$', graphs_handler, { 'emitter_format': 'json' }),
+
   # get list of all available classes
   url(r'^classes/$', classes_handler, { 'emitter_format': 'json' }),
 
   # get list of all properties for a specified class
   url(r'^classes/(?P<class_id>\S+)/$', properties_handler, { 'emitter_format': 'json' }),
+
+  url(r'^users/(?P<user_id>self|\d+)/graphs/$', user_graphs_handler, { 'emitter_format': 'json' }),
+  url(r'^users/(?P<user_id>self|\d+)/graphs/(?P<graph_id>\S+)$', user_graphs_handler, { 'emitter_format': 'json' }),
+
+  url(r'^users/(?P<user_id>self|\d+)/classes/$', user_classes_handler, { 'emitter_format': 'json' }),
 
   url(r'^users/(?P<user_id>self|\d+)/subjects/$', user_subject_handler, { 'emitter_format': 'json' }),
   url(r'^users/(?P<user_id>self|\d+)/subjects/(?P<subject_id>\S+)/$', user_subject_handler, { 'emitter_format': 'json' }),

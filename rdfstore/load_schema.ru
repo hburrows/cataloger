@@ -190,42 +190,6 @@ INSERT DATA {
   common:tags rdfs:label 'Tags' .
   common:tags rdfs:comment 'A list of keywords of your choosing that you use to identify classify characterize items.' .
   
-  common:Basket rdf:type owl:Class .
-  common:Basket rdfs:label 'Basket' .
-  common:Basket rdfs:subClassOf common:Collectable .
-  common:Basket common:isDefinedBy 'catalogit' .
-  common:Basket common:isUsedFor 'primary' .
-
-  common:Rug rdf:type owl:Class .
-  common:Rug rdfs:subClassOf common:Collectable .
-  common:Rug rdfs:label 'Rug' .
-  common:Rug common:isDefinedBy 'catalogit' .
-  common:Rug common:isUsedFor 'primary' .
-
-  common:Mask rdf:type owl:Class .
-  common:Mask rdfs:subClassOf common:Collectable .
-  common:Mask rdfs:label 'Mask' .
-  common:Mask common:isDefinedBy 'catalogit' .
-  common:Mask common:isUsedFor 'primary' .
-
-  common:Doll rdf:type owl:Class .
-  common:Doll rdfs:subClassOf common:Collectable .
-  common:Doll rdfs:label 'Doll' .
-  common:Doll common:isDefinedBy 'catalogit' .
-  common:Doll common:isUsedFor 'primary' .
-
-  common:CarvedStone rdf:type owl:Class .
-  common:CarvedStone rdfs:subClassOf common:Collectable .
-  common:CarvedStone rdfs:label 'Carved Stone' .
-  common:CarvedStone common:isDefinedBy 'catalogit' .
-  common:CarvedStone common:isUsedFor 'primary' .
-
-  common:Pipe rdf:type owl:Class .
-  common:Pipe rdfs:subClassOf common:Collectable .
-  common:Pipe rdfs:label 'Pipe' .
-  common:Pipe common:isDefinedBy 'catalogit' .
-  common:Pipe common:isUsedFor 'primary' .
-  
   foaf:Image common:isUsedFor 'secondary' .
   foaf:Agent common:isUsedFor 'secondary' .
 

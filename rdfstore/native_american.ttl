@@ -1,0 +1,61 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+
+@prefix natam: <http://example.com/rdf/schemas/community/native_american/> .
+
+natam:Basket rdf:type owl:Class .
+natam:Basket rdfs:label 'Basket' .
+natam:Basket rdfs:comment 'Basket comment' .
+natam:Basket rdfs:subClassOf common:Collectable .
+natam:Basket common:isDefinedBy 'catalogit' .
+natom:Basket rdfs:isDefinedBy 'catalogit' .
+natam:Basket common:isUsedFor 'primary' .
+
+natam:Rug rdf:type owl:Class .
+natam:Rug rdfs:subClassOf common:Collectable .
+natam:Rug rdfs:label 'Rug' .
+natam:Rug rdfs:comment 'Rug comment' .
+natam:Rug common:isDefinedBy 'catalogit' .
+natam:Rug rdfs:isDefinedBy 'catalogit' .
+natam:Rug common:isUsedFor 'primary' .
+
+natam:Mask rdf:type owl:Class .
+natam:Mask rdfs:subClassOf common:Collectable .
+natam:Mask rdfs:label 'Mask' .
+natam:Mask rdfs:comment 'Mask comment' .
+natam:Mask common:isDefinedBy 'catalogit' .
+natam:Mask rdfs:isDefinedBy 'catalogit' .
+natam:Mask common:isUsedFor 'primary' .
+
+natam:Doll rdf:type owl:Class .
+natam:Doll rdfs:subClassOf common:Collectable .
+natam:Doll rdfs:label 'Doll' .
+natam:Doll rdfs:comment 'Doll comment' .
+natam:Doll common:isDefinedBy 'catalogit' .
+natam:Doll rdfs:isDefinedBy 'catalogit' .
+natam:Doll common:isUsedFor 'primary' .
+
+natam:CarvedStone rdf:type owl:Class .
+natam:CarvedStone rdfs:subClassOf common:Collectable .
+natam:CarvedStone rdfs:label 'Carved Stone' .
+natam:CarvedStone rdfs:comment 'Carved Stone comment' .
+natam:CarvedStone common:isDefinedBy 'catalogit' .
+natam:CarvedStone rdfs:isDefinedBy 'catalogit' .
+natam:CarvedStone common:isUsedFor 'primary' .
+
+natam:Pipe rdf:type owl:Class .
+natam:Pipe rdfs:subClassOf common:Collectable .
+natam:Pipe rdfs:label 'Pipe' .
+natam:Pipe rdfs:comment 'Pipe comment' .
+natam:Pipe common:isDefinedBy 'catalogit' .
+natam:Pipe rdfs:isDefinedBy 'catalogit' .
+natam:Pipe common:isUsedFor 'primary' .
+

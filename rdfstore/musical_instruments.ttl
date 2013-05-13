@@ -1,0 +1,48 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+
+@prefix musicinst: <http://example.com/rdf/schemas/community/musical_instruments/> .
+
+musicinst:Instrument rdf:type owl:Class .
+musicinst:Instrument rdfs:label 'Musical Instrument' .
+musicinst:Instrument rdfs:comment 'All kinds of instruments used to make music and sound' .
+musicinst:Instrument rdfs:subClassOf common:Collectable .
+musicinst:Instrument common:isDefinedBy 'catalogit' .
+musicinst:Instrument common:isUsedFor 'primary' .
+
+musicinst:String rdf:type owl:Class .
+musicinst:String rdfs:label 'String Instrument' .
+musicinst:String rdfs:comment 'String Instrument - consists of plucked string instruments, such as guitars, and bowed string instruments, such as violins.' .
+musicinst:String rdfs:subClassOf musicinst:Instrument .
+musicinst:String common:isDefinedBy 'catalogit' .
+musicinst:String common:isUsedFor 'primary' .
+
+musicinst:Percussion rdf:type owl:Class .
+musicinst:Percussion rdfs:label 'Percussion Instrument' .
+musicinst:Percussion rdfs:comment 'Percussion Instrument comment' .
+musicinst:Percussion rdfs:subClassOf musicinst:Instrument .
+musicinst:Percussion common:isDefinedBy 'catalogit' .
+musicinst:Percussion common:isUsedFor 'primary' .
+
+musicinst:Wind rdf:type owl:Class .
+musicinst:Wind rdfs:label 'Wind Instrument' .
+musicinst:Wind rdfs:comment 'Wind Instrument - includes both wind instruments with a reed (woodwind instruments) and wind instruments where the air is set in motion directly by the lips (brass instruments).' .
+musicinst:Wind rdfs:subClassOf musicinst:Instrument .
+musicinst:Wind common:isDefinedBy 'catalogit' .
+musicinst:Wind common:isUsedFor 'primary' .
+
+musicinst:Keyboard rdf:type owl:Class .
+musicinst:Keyboard rdfs:label 'Keyboard Instrument' .
+musicinst:Keyboard rdfs:comment 'Keyboard Instrument - keyboard instruments are often regarded as inhabiting a category of their own, including all instruments played by a keyboard, whether they have struck strings (like the piano), plucked strings (like the harpsichord) or no strings at all (like the celesta).' .
+musicinst:Keyboard rdfs:subClassOf musicinst:Instrument .
+musicinst:Keyboard common:isDefinedBy 'catalogit' .
+musicinst:Keyboard common:isUsedFor 'primary' .
+

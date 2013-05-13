@@ -1,42 +1,49 @@
 '''
-Created on Mar 8, 2013
+Created on Apr 26, 2013
 
 @author: howard
 '''
 
-from django.conf import settings
 
 from piston.handler import BaseHandler
+from piston.utils import rc
 
 from api import SCHEMA_GRAPH_URI
-from api.models import Graph
 
-from . import sparql_query, sparql_froms_for_user
+from . import sparql_froms_for_user, sparql_query
 
-class ClassesHandler(BaseHandler):
+class UserClassesHandler(BaseHandler):
 
-  allowed_methods = ('GET', 'POST')
+  allowed_methods = ('GET', 'POST', 'DELETE')
 
-  def read(self, request, class_id=None):
+  def read(self, request, user_id, subject_id=None):
     
+    # fix-up "self" user
+    if user_id.lower() == 'self':
+      user_id = request.user.id
+
+    # can only view your own data unless you're a superuser
+    if not request.user.is_superuser and int(user_id) != request.user.id:
+      return rc.FORBIDDEN
+
     try:
 
       template = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX sg: <{sg}>
+PREFIX common: <{sg}>
 SELECT DISTINCT ?class ?label ?comment
 {graphs}
 WHERE {{
   ?class rdf:type owl:Class .
-  ?class sg:isUsedFor "primary" 
+  ?class common:isUsedFor "primary" 
   OPTIONAL {{ ?class rdfs:label ?label . }}
   OPTIONAL {{ ?class rdfs:comment ?comment . }}
 }}
 ORDER BY (?label)
 '''
-      rq = template.format(sg=SCHEMA_GRAPH_URI,graphs=' '.join(['FROM <' + g.graph_uri + '>' for g in Graph.objects.all()]))
+      rq = template.format(sg=SCHEMA_GRAPH_URI,graphs=sparql_froms_for_user(request.user))
 
       classes = []
       for result in sparql_query(rq)["results"]["bindings"]:
@@ -56,10 +63,3 @@ ORDER BY (?label)
 
     return classes
 
-  def create(self, request):
-    pass
-
-
-  
-  
-  

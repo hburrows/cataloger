@@ -22,7 +22,7 @@ from api import USER_GRAPH_URI, COMMON_GRAPH_URI
 from api.models import Image as ImageModel, THUMBNAIL_SIZE
 from api.forms import ImageForm
 
-from . import sparql_update
+from . import sparql_update, sparql_froms_for_user
 
 import rdfutils
 
@@ -92,8 +92,6 @@ class UserImagesHandler(BaseHandler):
       resp.write(' - ' + str(e))
       return resp
 
-    image_json = image.to_json_obj()
-
     ru_tmpl = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
@@ -135,21 +133,16 @@ INSERT DATA {{
       subject_uuid=subject_uuid,
       geo_long=0,
       geo_lat=0,
-      original_image_url=image_json['original']['url'],
-      original_image_width=image_json['original']['width'],
-      original_image_height=image_json['original']['height'],
-      thumbnail_image_url=image_json['thumbnail']['url'],
-      thumbnail_image_width=image_json['thumbnail']['width'],
-      thumbnail_image_height=image_json['thumbnail']['height'])
+      original_image_url=image.original.url,
+      original_image_width=image.original.width,
+      original_image_height=image.original.height,
+      thumbnail_image_url=image.thumbnail.url,
+      thumbnail_image_width=image.thumbnail.width,
+      thumbnail_image_height=image.thumbnail.height)
 
     sparql_update(ru)
 
-    result = rdfutils.object_to_json(COMMON_GRAPH_URI, str(USER), USER[subject_uuid])
-    
-    image_json['result'] = result
-    image_json['subject_url'] = USER[subject_uuid]
-
-    return image_json
+    return rdfutils.object_to_json(sparql_froms_for_user(request.user), COMMON_GRAPH_URI, str(USER), USER[subject_uuid])
   
   def update(self, request, user_id, entry_id, image_id):
   

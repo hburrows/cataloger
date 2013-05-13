@@ -14,6 +14,14 @@ COMMON_GRAPH_URI = BASE_GRAPH_URI + 'schemas/'
 
 USER_GRAPH_URI = BASE_GRAPH_URI + 'users/{userId}/'
 
+REQUIRED_VOCABULARIES = [
+    'http://example.com/rdf/schemas/'
+]
+
+DEFAULT_VOCABULARIES = [
+    'http://example.com/rdf/schemas/community/household_items/'
+]
+
 MYSQL_HOST = 'localhost'
 POSTGRES_HOST = '/tmp/'
 USER = 'howard'

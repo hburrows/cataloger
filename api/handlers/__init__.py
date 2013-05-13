@@ -18,7 +18,10 @@ SCHEMA = Namespace(SCHEMA_GRAPH_URI)
   UTILITY
 '''
 
-def get_full_json(graphURI, uriRef, label, comment):
+def sparql_froms_for_user(user):
+  return ' '.join(['FROM <' + g.graph_uri + '>' for g in user.userprofile.graphs.all()])
+
+def get_full_json(graphs, uriRef, label, comment):
 
   # create a list of properties
 
@@ -26,25 +29,23 @@ def get_full_json(graphURI, uriRef, label, comment):
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX : <{sg}>
+PREFIX common: <{common}>
 SELECT ?property ?label ?range ?type ?comment ?embed
+{graphs}
 WHERE
 {{
-  GRAPH <{sg}>
-  {{
-    ?property rdfs:domain <{domain}> ;
-              rdf:type ?type .
-    OPTIONAL {{ ?property rdfs:range ?range . }}
-    OPTIONAL {{ ?property rdfs:label ?label . }}
-    OPTIONAL {{ ?property rdfs:comment ?comment . }}
-    OPTIONAL {{ ?property :displayOrder ?order . }}
-    OPTIONAL {{ ?property :embed ?embed . }}
-    FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
-  }}
+  ?property rdfs:domain <{domain}> ;
+            rdf:type ?type .
+  OPTIONAL {{ ?property rdfs:range ?range . }}
+  OPTIONAL {{ ?property rdfs:label ?label . }}
+  OPTIONAL {{ ?property rdfs:comment ?comment . }}
+  OPTIONAL {{ ?property common:displayOrder ?order . }}
+  OPTIONAL {{ ?property common:embed ?embed . }}
+  FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
 }}
 ORDER BY (?order)'''
 
-  rq = template.format(domain=uriRef, sg=graphURI)
+  rq = template.format(graphs=graphs, common=SCHEMA_GRAPH_URI, domain=uriRef)
 
 #  t0 = time()
 
@@ -75,27 +76,26 @@ ORDER BY (?order)'''
 
   return result
 
-def get_base_json(graphURI, uriRef, label, comment):
+def get_base_json(graphs, uriRef, label, comment):
 
   # create a list of properties
   template = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX common: <{common}>
 SELECT ?property ?range ?type
-FROM NAMED <{sg}>
+{graphs}
 WHERE
 {{
-  GRAPH <{sg}>
-  {{
-    ?property rdfs:domain <{domain}> ;
-              rdf:type ?type
-    OPTIONAL {{ ?property rdfs:range ?range }}
-    FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
-  }}
+  ?property rdfs:domain <{domain}> ;
+            rdf:type ?type
+  OPTIONAL {{ ?property rdfs:range ?range }}
+  OPTIONAL {{ ?property common:embed ?embed . }}
+  FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
 }}'''
 
-  rq = template.format(domain=str(uriRef), sg=graphURI)
+  rq = template.format(graphs=graphs, common=SCHEMA_GRAPH_URI, domain=uriRef)
 
   properties = []
   for result in sparql_query(rq)["results"]["bindings"]:
@@ -104,6 +104,7 @@ WHERE
       'property': result['property']['value'],
       'range': result['range']['value'] if 'range' in result else None,
       'type': result['type']['value'],
+      'embed': result['embed']['value'] if 'embed' in result else False
     })
 
   return {
@@ -112,48 +113,51 @@ WHERE
 
 
 # output everything about the super classes
-def dump_supers(graphURI, subURI, l, formatter):
+def dump_supers(graphs, subURI, l, formatter):
 
   rq_tmpl = '''
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX : <{graph_uri}>
-SELECT ?super ?label ?comment
-WHERE {{
-  GRAPH :
-  {{
-     ?super ^rdfs:subClassOf+ <{sub_uri}>
-     OPTIONAL {{ ?super rdfs:label ?label }}
-     OPTIONAL {{ ?super rdfs:comment ?comment }}
-  }}
+SELECT DISTINCT ?s ?super ?label ?comment
+{graphs}
+{{
+  <{sub_uri}> rdfs:subClassOf ?super
+  OPTIONAL {{ ?super rdfs:label ?label }}
+  OPTIONAL {{ ?super rdfs:comment ?comment }}
 }}
 '''
-  rq = rq_tmpl.format(graph_uri=graphURI, sub_uri=subURI)
+  rq = rq_tmpl.format(graphs=graphs, sub_uri=subURI)
   
+  supers = set([])
   for result in sparql_query(rq)["results"]["bindings"]:
 
     superURI = result['super']['value']
     label = result['label']['value'] if 'label' in result else None
     comment = result['comment']['value'] if 'comment' in result else None
-  
-    l.append(formatter(graphURI, superURI, label, comment))
-    dump_supers(graphURI, superURI, l, formatter)
+
+    if superURI in supers:
+      continue
+
+    meta = formatter(graphs, superURI, label, comment)
+    
+    supers.add(superURI)
+
+    l.append(meta)
+
+    dump_supers(graphs, superURI, l, formatter)
 
 
-def get_class_info(classURI):
+def get_class_info(graphs, classURI):
 
   rq_tmpl = '''
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX : <{graph_uri}>
 SELECT ?label ?comment
+{graphs}
 WHERE {{
-  GRAPH :
-  {{
-     OPTIONAL {{ <{class_uri}> rdfs:label ?label }}
-     OPTIONAL {{ <{class_uri}> rdfs:comment ?comment }}
-  }}
+  OPTIONAL {{ <{class_uri}> rdfs:label ?label }}
+  OPTIONAL {{ <{class_uri}> rdfs:comment ?comment }}
 }}
 '''
-  rq = rq_tmpl.format(graph_uri=SCHEMA_GRAPH_URI, class_uri=classURI)
+  rq = rq_tmpl.format(graphs=graphs, class_uri=classURI)
 
   results = sparql_query(rq)
   if len(results["results"]["bindings"]) > 0:
@@ -167,25 +171,24 @@ WHERE {{
   return label, comment
 
 
-def get_full_schema_for(classURI):
+def get_full_schema_for(graphs, classURI):
   print "Getting full schema for ", classURI
 
-  label, comment = get_class_info(classURI)
+  label, comment = get_class_info(graphs, classURI)
       
   classDefs = []
-  classDefs.append(get_full_json(SCHEMA_GRAPH_URI, classURI, label, comment))
-  dump_supers(SCHEMA_GRAPH_URI, classURI, classDefs, get_full_json)
+  classDefs.append(get_full_json(graphs, classURI, label, comment))
+  dump_supers(graphs, classURI, classDefs, get_full_json)
 
   # reverse result and return
   return classDefs[::-1];
 
-
-def get_base_schema_for(classURI):
-  label, comment = get_class_info(classURI)
+def get_base_schema_for(graphs, classURI):
+  label, comment = get_class_info(graphs, classURI)
       
   classDefs = []
-  classDefs.append(get_base_json(SCHEMA_GRAPH_URI, classURI, label, comment))
-  dump_supers(SCHEMA_GRAPH_URI, classURI, classDefs, get_base_json)
+  classDefs.append(get_base_json(graphs, classURI, label, comment))
+  dump_supers(graphs, classURI, classDefs, get_base_json)
 
   flatProperties = []
   for classDef in classDefs:
@@ -193,12 +196,12 @@ def get_base_schema_for(classURI):
   
   return flatProperties
 
-def get_schema_and_lookup_for(classURI):
-  label, comment = get_class_info(classURI)
+def get_schema_and_lookup_for(graphs, classURI):
+  label, comment = get_class_info(graphs, classURI)
       
   classDefs = []
-  classDefs.append(get_base_json(SCHEMA_GRAPH_URI, classURI, label, comment))
-  dump_supers(SCHEMA_GRAPH_URI, classURI, classDefs, get_base_json)
+  classDefs.append(get_base_json(graphs, classURI, label, comment))
+  dump_supers(graphs, classURI, classDefs, get_base_json)
 
   lookup = {}
   for classDef in classDefs:
@@ -207,12 +210,12 @@ def get_schema_and_lookup_for(classURI):
   
   return classDefs[::-1], lookup
 
-def get_full_schema_and_lookup_for(classURI):
-  label, comment = get_class_info(classURI)
+def get_full_schema_and_lookup_for(graphs, classURI):
+  label, comment = get_class_info(graphs, classURI)
       
   classDefs = []
-  classDefs.append(get_full_json(SCHEMA_GRAPH_URI, classURI, label, comment))
-  dump_supers(SCHEMA_GRAPH_URI, classURI, classDefs, get_full_json)
+  classDefs.append(get_full_json(graphs, classURI, label, comment))
+  dump_supers(graphs, classURI, classDefs, get_full_json)
 
   lookup = {}
   for classDef in classDefs:
