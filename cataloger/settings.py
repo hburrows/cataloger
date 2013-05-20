@@ -12,7 +12,8 @@ ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )
 
-SERVER_ENDPOINT = 'hellssatans'
+# DNS that identifies the hostname running mysql and fuseki.  Temporary ???
+SERVER_ENDPOINT = 'localhost'
 
 # Move up to the root of the project
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -1,0 +1,89 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+
+@prefix lifeevent: <http://example.com/rdf/schemas/community/life_events/> .
+
+lifeevent:LifeLogEvent rdf:type owl:Class .
+lifeevent:LifeLogEvent rdfs:label 'Life Event' .
+lifeevent:LifeLogEvent rdfs:comment 'Some noteworthy life event item' .
+lifeevent:LifeLogEvent rdfs:subClassOf common:Entry .
+lifeevent:LifeLogEvent rdfs:isDefinedBy 'catalogit' .
+lifeevent:LifeLogEvent common:isUsedFor 'primary' .
+
+dc:title rdfs:domain lifeevent:LifeLogEvent .
+dc:title common:displayOrder 1 .
+
+dc:description rdfs:domain lifeevent:LifeLogEvent .
+dc:description common:displayOrder 2 .
+
+
+lifeevent:Moment rdf:type owl:Class .
+lifeevent:Moment rdfs:label 'Moment' .
+lifeevent:Moment rdfs:comment 'An arbitrary life moment to capture -- scene, sound, thought, image, etc' .
+lifeevent:Moment rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Moment rdfs:isDefinedBy 'catalogit' .
+lifeevent:Moment common:isUsedFor 'primary' .
+
+lifeevent:Thought rdf:type owl:Class .
+lifeevent:Thought rdfs:label 'Thought' .
+lifeevent:Thought rdfs:comment 'An thought you want to note' .
+lifeevent:Thought rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Thought rdfs:isDefinedBy 'catalogit' .
+lifeevent:Thought common:isUsedFor 'primary' .
+
+lifeevent:Socialize rdf:type owl:Class .
+lifeevent:Socialize rdfs:label 'Socialize' .
+lifeevent:Socialize rdfs:comment 'A social activity/event with friends' .
+lifeevent:Socialize rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Socialize rdfs:isDefinedBy 'catalogit' .
+lifeevent:Socialize common:isUsedFor 'primary' .
+
+lifeevent:Work rdf:type owl:Class .
+lifeevent:Work rdfs:label 'Work' .
+lifeevent:Work rdfs:comment 'Work - professional work, house work, etc.' .
+lifeevent:Work rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Work rdfs:isDefinedBy 'catalogit' .
+lifeevent:Work common:isUsedFor 'primary' .
+
+lifeevent:Eat rdf:type owl:Class .
+lifeevent:Eat rdfs:label 'Eat' .
+lifeevent:Eat rdfs:comment 'Something you eat or drank' .
+lifeevent:Eat rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Eat rdfs:isDefinedBy 'catalogit' .
+lifeevent:Eat common:isUsedFor 'primary' .
+
+lifeevent:Workout rdf:type owl:Class .
+lifeevent:Workout rdfs:label 'Workout' .
+lifeevent:Workout rdfs:comment 'A physical activity you did for mental/physical health' .
+lifeevent:Workout rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Workout rdfs:isDefinedBy 'catalogit' .
+lifeevent:Workout common:isUsedFor 'primary' .
+
+lifeevent:Commute rdf:type owl:Class .
+lifeevent:Commute rdfs:label 'Commute' .
+lifeevent:Commute rdfs:comment 'Time spent commuting from on location to another or in transit.' .
+lifeevent:Commute rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Commute rdfs:isDefinedBy 'catalogit' .
+lifeevent:Commute common:isUsedFor 'primary' .
+
+lifeevent:Bath rdf:type owl:Class .
+lifeevent:Bath rdfs:label 'Hygiene ' .
+lifeevent:Bath rdfs:comment 'Bathing, brushing your teeth, etc.' .
+lifeevent:Bath rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Bath rdfs:isDefinedBy 'catalogit' .
+lifeevent:Bath common:isUsedFor 'primary' .
+
+lifeevent:Sleep rdf:type owl:Class .
+lifeevent:Sleep rdfs:label 'Sleep' .
+lifeevent:Sleep rdfs:comment 'Sleeping - going to sleep and waking up.' .
+lifeevent:Sleep rdfs:subClassOf lifeevent:LifeLogEvent .
+lifeevent:Sleep rdfs:isDefinedBy 'catalogit' .
+lifeevent:Sleep common:isUsedFor 'primary' .

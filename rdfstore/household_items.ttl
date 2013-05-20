@@ -8,13 +8,14 @@
 @prefix dcmi: <http://purl.org/dc/dcmitype/> .
 
 @prefix common: <http://example.com/rdf/schemas/> .
+@prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
 
-@prefix household: <http://example.com/rdf/schemas/community/musical_instruments/> .
+@prefix household: <http://example.com/rdf/schemas/community/household_items/> .
 
 household:Household rdf:type owl:Class .
 household:Household rdfs:label 'Household Item' .
 household:Household rdfs:comment 'Any item found in a typical household - furniture, art, cooking items, sports, toys, etc.' .
-household:Household rdfs:subClassOf common:Collectable .
+household:Household rdfs:subClassOf collectable:Collectable .
 household:Household rdfs:isDefinedBy 'catalogit' .
 household:Household common:isUsedFor 'primary' .
 

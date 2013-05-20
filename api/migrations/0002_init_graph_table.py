@@ -15,7 +15,11 @@ class Migration(DataMigration):
         g.save()
         g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/musical_instruments/');
         g.save()
-        
+        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/life_events/');
+        g.save()
+        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/collectable/');
+        g.save()
+
     def backwards(self, orm):
         for g in orm.Graph.objects.all():
           g.delete()

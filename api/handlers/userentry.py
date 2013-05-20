@@ -61,7 +61,7 @@ class UserEntryHandler(BaseHandler):
         if 'filter' in request.GET:
           root_type_uri = SCHEMA[request.GET['filter']]
         else:
-          root_type_uri = SCHEMA['Collectable']
+          root_type_uri = SCHEMA['Entry']
 
           rq_tmpl = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>

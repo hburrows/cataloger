@@ -110,8 +110,15 @@ INSERT DATA {
   common:media rdfs:comment 'The set of media (images videos sounds documents etc.) associated with the item.' .
   common:media common:embed true .
 
+  common:tags rdf:type rdf:Seq .
+  common:tags common:displayOrder 6 .
+  common:tags rdfs:domain common:Entry .
+  common:tags rdfs:range xsd:string .
+  common:tags rdfs:label 'Tags' .
+  common:tags rdfs:comment 'A list of keywords of your choosing that you use to identify classify characterize items.' .
+
   ###
-  ### Experimental.  So and entry can have multiple parents need to define a class of: subClassOf, graphURI
+  ### Experimental.  So an entry can have multiple parents need to define a class of: subClassOf, graphURI
   ###
   common:subClassGraph rdf:type owl:ObjectProperty .
   common:subClassGraph rdfs:domain common:Entry .
@@ -122,74 +129,6 @@ INSERT DATA {
   common:isUsedFor rdfs:domain common:Entry .
   common:isUsedFor rdfs:label 'A tag used to indicate how a class is used.' .
 
-  common:Collectable rdf:type owl:Class .
-  common:Collectable rdfs:subClassOf common:Entry .
-  common:Collectable rdfs:label 'Collectable' .
-  common:Collectable common:isDefinedBy 'catalogit' .
-  common:Collectable common:isUsedFor 'primary' .
-
-  # property and tenant class definitions
-  #
-  common:Valuation rdf:type owl:Class .
-  common:Valuation rdfs:label 'Valuation' .
-  common:Valuation common:isUsedFor 'secondary' .
-
-  common:valuation.value rdf:type owl:DatatypeProperty .
-  common:valuation.value common:displayOrder 1 .
-  common:valuation.value rdfs:domain common:Valuation .
-  common:valuation.value rdfs:range xsd:decimal .
-  common:valuation.value rdfs:label 'Value' .
-  common:valuation.value rdfs:comment 'Real or estimated value of item.' .
-  
-  common:valuation.date rdf:type owl:DatatypeProperty .
-  common:valuation.date common:displayOrder 2 .
-  common:valuation.date rdfs:domain common:Valuation .
-  common:valuation.date rdfs:range xsd:dateTime .
-  common:valuation.date rdfs:label 'Date' .
-  common:valuation.date rdfs:comment 'Date valuation was provided.' .
-
-  common:valuation.agent rdf:type owl:ObjectProperty .
-  common:valuation.agent common:displayOrder 3 .
-  common:valuation.agent rdfs:domain common:Valuation .
-  common:valuation.agent rdfs:range foaf:Agent .
-  common:valuation.agent rdfs:label 'Provider' .
-  common:valuation.agent rdfs:comment 'Person or organization that provided the valuation.' .
-
-  # properties of collectable
-  dc:title rdfs:domain common:Collectable .
-  dc:title common:displayOrder 1 .
-
-  dc:description rdfs:domain common:Collectable .
-  dc:description common:displayOrder 2 .
-
-  common:aquireDate rdf:type owl:DatatypeProperty .
-  common:aquireDate common:displayOrder 3 .
-  common:aquireDate rdfs:domain common:Collectable .
-  common:aquireDate rdfs:range xsd:dateTime .
-  common:aquireDate rdfs:label 'Acquire Date' .
-  common:aquireDate rdfs:comment 'Date the item was acquired.' .
-
-  common:aquirePrice rdf:type owl:DatatypeProperty .
-  common:aquirePrice common:displayOrder 4 .
-  common:aquirePrice rdfs:domain common:Collectable .
-  common:aquirePrice rdfs:range xsd:decimal .
-  common:aquirePrice rdfs:label 'Acquire Price' .
-  common:aquirePrice rdfs:comment 'Cost to acquire the item.' .
-
-  common:valuationOn rdf:type owl:ObjectProperty .
-  common:valuationOn common:displayOrder 5 .
-  common:valuationOn rdfs:domain common:Collectable .
-  common:valuationOn rdfs:range common:Valuation .
-  common:valuationOn rdfs:label 'Valuation' .
-  common:valuationOn rdfs:comment 'Value of the item on a certain date.' .
-
-  common:tags rdf:type rdf:Seq .
-  common:tags common:displayOrder 6 .
-  common:tags rdfs:domain common:Collectable .
-  common:tags rdfs:range xsd:string .
-  common:tags rdfs:label 'Tags' .
-  common:tags rdfs:comment 'A list of keywords of your choosing that you use to identify classify characterize items.' .
-  
   foaf:Image common:isUsedFor 'secondary' .
   foaf:Agent common:isUsedFor 'secondary' .
 
