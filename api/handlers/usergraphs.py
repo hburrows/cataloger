@@ -28,7 +28,7 @@ class UserGraphsHandler(BaseHandler):
     if not request.user.is_superuser and int(user_id) != request.user.id:
       return rc.FORBIDDEN
 
-    return [{'graph_uri': g.graph_uri} for g in request.user.userprofile.graphs.all()]
+    return [{'graph_uri': g.graph_uri, 'label': g.label} for g in request.user.userprofile.graphs.all()]
   
   def create(self, request, user_id, graph_id):
     # fix-up "self" user

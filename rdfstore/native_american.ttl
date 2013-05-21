@@ -10,53 +10,136 @@
 @prefix common: <http://example.com/rdf/schemas/> .
 @prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
 
-@prefix natam: <http://example.com/rdf/schemas/community/native_american/> .
 
-natam:Basket rdf:type owl:Class .
-natam:Basket rdfs:label 'Basket' .
-natam:Basket rdfs:comment 'Basket comment' .
-natam:Basket rdfs:subClassOf collectable:Collectable .
-natam:Basket common:isDefinedBy 'catalogit' .
-natam:Basket rdfs:isDefinedBy 'catalogit' .
-natam:Basket common:isUsedFor 'primary' .
+@prefix : <http://example.com/rdf/schemas/community/native_american/> .
 
-natam:Rug rdf:type owl:Class .
-natam:Rug rdfs:subClassOf collectable:Collectable .
-natam:Rug rdfs:label 'Rug' .
-natam:Rug rdfs:comment 'Rug comment' .
-natam:Rug common:isDefinedBy 'catalogit' .
-natam:Rug rdfs:isDefinedBy 'catalogit' .
-natam:Rug common:isUsedFor 'primary' .
 
-natam:Mask rdf:type owl:Class .
-natam:Mask rdfs:subClassOf collectable:Collectable .
-natam:Mask rdfs:label 'Mask' .
-natam:Mask rdfs:comment 'Mask comment' .
-natam:Mask common:isDefinedBy 'catalogit' .
-natam:Mask rdfs:isDefinedBy 'catalogit' .
-natam:Mask common:isUsedFor 'primary' .
+#
+# Region and sub-regions
+#
+:Region rdf:type owl:Class .
+:Region rdfs:label 'Region' .
+:Region rdfs:comment 'Native American region' .
+:Region rdfs:isDefinedBy 'catalogit' .
+:Region common:isUsedFor 'secondary' .
 
-natam:Doll rdf:type owl:Class .
-natam:Doll rdfs:subClassOf collectable:Collectable .
-natam:Doll rdfs:label 'Doll' .
-natam:Doll rdfs:comment 'Doll comment' .
-natam:Doll common:isDefinedBy 'catalogit' .
-natam:Doll rdfs:isDefinedBy 'catalogit' .
-natam:Doll common:isUsedFor 'primary' .
+:Southeast rdfs:label 'Southeast' .
+:Southeast rdfs:comment 'Southeast Native American region' .
+:Southeast rdfs:subClassOf :Region .
+:Southeast rdfs:isDefinedBy 'catalogit' .
+:Southeast common:isUsedFor 'secondary' .
 
-natam:CarvedStone rdf:type owl:Class .
-natam:CarvedStone rdfs:subClassOf collectable:Collectable .
-natam:CarvedStone rdfs:label 'Carved Stone' .
-natam:CarvedStone rdfs:comment 'Carved Stone comment' .
-natam:CarvedStone common:isDefinedBy 'catalogit' .
-natam:CarvedStone rdfs:isDefinedBy 'catalogit' .
-natam:CarvedStone common:isUsedFor 'primary' .
+:Northeast rdfs:label 'Northeast' .
+:Northeast rdfs:comment 'Northeast Native American region' .
+:Northeast rdfs:subClassOf :Region .
+:Northeast rdfs:isDefinedBy 'catalogit' .
+:Northeast common:isUsedFor 'secondary' .
 
-natam:Pipe rdf:type owl:Class .
-natam:Pipe rdfs:subClassOf collectable:Collectable .
-natam:Pipe rdfs:label 'Pipe' .
-natam:Pipe rdfs:comment 'Pipe comment' .
-natam:Pipe common:isDefinedBy 'catalogit' .
-natam:Pipe rdfs:isDefinedBy 'catalogit' .
-natam:Pipe common:isUsedFor 'primary' .
+:Plains rdfs:label 'Plains' .
+:Plains rdfs:comment 'Plains Native American region' .
+:Plains rdfs:subClassOf :Region .
+:Plains rdfs:isDefinedBy 'catalogit' .
+:Plains common:isUsedFor 'secondary' .
+
+:ArcticAndSubArctic rdfs:label 'Arctic and Sub-Arctic' .
+:ArcticAndSubArctic rdfs:comment 'Arctic and Sub-Arctic Native American region' .
+:ArcticAndSubArctic rdfs:subClassOf :Region .
+:ArcticAndSubArctic rdfs:isDefinedBy 'catalogit' .
+:ArcticAndSubArctic common:isUsedFor 'secondary' .
+
+:PacificNorthwest rdfs:label 'Pacific Northwest' .
+:PacificNorthwest rdfs:comment 'Pacific Northwest Native American region' .
+:PacificNorthwest rdfs:subClassOf :Region .
+:PacificNorthwest rdfs:isDefinedBy 'catalogit' .
+:PacificNorthwest common:isUsedFor 'secondary' .
+
+:CascadesPlateau rdfs:label 'Cascades/Plateau' .
+:CascadesPlateau rdfs:comment 'Cascades/Plateau Native American region' .
+:CascadesPlateau rdfs:subClassOf :Region .
+:CascadesPlateau rdfs:isDefinedBy 'catalogit' .
+:CascadesPlateau common:isUsedFor 'secondary' .
+
+:NorthernCaliufornia rdfs:label 'Northern Caliufornia' .
+:NorthernCaliufornia rdfs:comment 'Northern Caliufornia Native American region' .
+:NorthernCaliufornia rdfs:subClassOf :Region .
+:NorthernCaliufornia rdfs:isDefinedBy 'catalogit' .
+:NorthernCaliufornia common:isUsedFor 'secondary' .
+
+:CentralCalifornia rdfs:label 'Central California' .
+:CentralCalifornia rdfs:comment 'Central California Native American region' .
+:CentralCalifornia rdfs:subClassOf :Region .
+:CentralCalifornia rdfs:isDefinedBy 'catalogit' .
+:CentralCalifornia common:isUsedFor 'secondary' .
+
+:SothernCalifornia rdfs:label 'Sothern California' .
+:SothernCalifornia rdfs:comment 'Sothern California Native American region' .
+:SothernCalifornia rdfs:subClassOf :Region .
+:SothernCalifornia rdfs:isDefinedBy 'catalogit' .
+:SothernCalifornia common:isUsedFor 'secondary' .
+
+:GreatBasin rdfs:label 'Great Basin' .
+:GreatBasin rdfs:comment 'Great Basin Native American region' .
+:GreatBasin rdfs:subClassOf :Region .
+:GreatBasin rdfs:isDefinedBy 'catalogit' .
+:GreatBasin common:isUsedFor 'secondary' .
+
+:Sauthwest rdfs:label 'Sauthwest' .
+:Sauthwest rdfs:comment 'Sauthwest Native American region' .
+:Sauthwest rdfs:subClassOf :Region .
+:Sauthwest rdfs:isDefinedBy 'catalogit' .
+:Sauthwest common:isUsedFor 'secondary' .
+
+
+
+#
+# Native American Item
+#
+:Item rdf:type owl:Class .
+:Item rdfs:label 'Native American Item' .
+:Item rdfs:comment 'Native American item (basket, rug, doll, pottery, etc.)' .
+:Item rdfs:subClassOf collectable:Collectable .
+:Item rdfs:isDefinedBy 'catalogit' .
+:Item common:isUsedFor 'secondary' .
+
+
+
+:Rug rdf:type owl:Class .
+:Rug rdfs:subClassOf :Item .
+:Rug rdfs:label 'Rug' .
+:Rug rdfs:comment 'Rug comment' .
+:Rug common:isDefinedBy 'catalogit' .
+:Rug rdfs:isDefinedBy 'catalogit' .
+:Rug common:isUsedFor 'primary' .
+
+:Mask rdf:type owl:Class .
+:Mask rdfs:subClassOf :Item .
+:Mask rdfs:label 'Mask' .
+:Mask rdfs:comment 'Mask comment' .
+:Mask common:isDefinedBy 'catalogit' .
+:Mask rdfs:isDefinedBy 'catalogit' .
+:Mask common:isUsedFor 'primary' .
+
+:Doll rdf:type owl:Class .
+:Doll rdfs:subClassOf :Item .
+:Doll rdfs:label 'Doll' .
+:Doll rdfs:comment 'Doll comment' .
+:Doll common:isDefinedBy 'catalogit' .
+:Doll rdfs:isDefinedBy 'catalogit' .
+:Doll common:isUsedFor 'primary' .
+
+:CarvedStone rdf:type owl:Class .
+:CarvedStone rdfs:subClassOf :Item .
+:CarvedStone rdfs:label 'Carved Stone' .
+:CarvedStone rdfs:comment 'Carved Stone comment' .
+:CarvedStone common:isDefinedBy 'catalogit' .
+:CarvedStone rdfs:isDefinedBy 'catalogit' .
+:CarvedStone common:isUsedFor 'primary' .
+
+:Pipe rdf:type owl:Class .
+:Pipe rdfs:subClassOf :Item .
+:Pipe rdfs:label 'Pipe' .
+:Pipe rdfs:comment 'Pipe comment' .
+:Pipe common:isDefinedBy 'catalogit' .
+:Pipe rdfs:isDefinedBy 'catalogit' .
+:Pipe common:isUsedFor 'primary' .
 

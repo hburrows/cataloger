@@ -356,6 +356,7 @@ def _update_triple_frag(sg_uri, ug_uri, subject, predicate, new_json, existing_o
   if predicate == str(RDF_type):
     if new_json != existing_obj:
       print("rdf:type update")
+      obj_update = '<' + new_json + '>'
 
   # literal data
   elif pred_type == str(OWL_DatatypeProperty) or pred_type == str(RDF_Property):
@@ -381,6 +382,7 @@ def _update_triple_frag(sg_uri, ug_uri, subject, predicate, new_json, existing_o
       # uriref
       if new_json != existing_obj:
         print(predicate + "; uri update")
+        obj_update = '<' + new_json + '>'
 
   # sequence
   elif pred_type == str(RDF['Seq']):

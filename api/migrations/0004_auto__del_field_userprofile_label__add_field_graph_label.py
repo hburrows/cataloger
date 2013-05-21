@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/household_items/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/native_american/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/musical_instruments/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/life_events/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/collectable/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/baskets/native_american/');
-        g.save()
+        # Deleting field 'UserProfile.label'
+        db.delete_column(u'api_userprofile', 'label')
+
+        # Adding field 'Graph.label'
+        db.add_column(u'api_graph', 'label',
+                      self.gf('django.db.models.fields.TextField')(max_length=128, null=True),
+                      keep_default=False)
 
     def backwards(self, orm):
-        for g in orm.Graph.objects.all():
-          g.delete()
+        # Adding field 'UserProfile.label'
+        db.add_column(u'api_userprofile', 'label',
+                      self.gf('django.db.models.fields.TextField')(max_length=128, null=True),
+                      keep_default=False)
+
+        # Deleting field 'Graph.label'
+        db.delete_column(u'api_graph', 'label')
+
 
     models = {
         u'api.graph': {
             'Meta': {'object_name': 'Graph'},
             'graph_uri': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'label': ('django.db.models.fields.TextField', [], {'max_length': '128', 'null': 'True'})
         },
         u'api.image': {
             'Meta': {'object_name': 'Image', '_ormbases': [u'api.Subject']},
@@ -93,4 +94,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['api']
-    symmetrical = True

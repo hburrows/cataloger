@@ -7,30 +7,38 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/');
+        g.label = "Common"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/household_items/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/household_items/');
+        g.label = "Household Items"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/native_american/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/native_american/');
+        g.label = "Native American"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/musical_instruments/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/musical_instruments/');
+        g.label = "Musical Instruments"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/life_events/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/life_events/');
+        g.label = "Life Events"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/collectable/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/collectable/');
+        g.label = "Collectables"
         g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/baskets/native_american/');
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/baskets/native_american/');
+        g.label = "Native American Baskets"
         g.save()
 
+
     def backwards(self, orm):
-        for g in orm.Graph.objects.all():
-          g.delete()
+        "Write your backwards methods here."
 
     models = {
         u'api.graph': {
             'Meta': {'object_name': 'Graph'},
             'graph_uri': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'label': ('django.db.models.fields.TextField', [], {'max_length': '128', 'null': 'True'})
         },
         u'api.image': {
             'Meta': {'object_name': 'Image', '_ormbases': [u'api.Subject']},

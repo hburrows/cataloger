@@ -1,0 +1,262 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+@prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
+@prefix natam: <http://example.com/rdf/schemas/community/native_american/> .
+
+
+@prefix : <http://example.com/rdf/schemas/community/baskets/native_american/> .
+
+
+#
+# Dimension
+#
+
+:Dimension rdf:type owl:Class .
+:Dimension rdfs:label 'Dimensions' .
+:Dimension rdfs:comment 'Width, height, and length of basket' .
+:Dimension rdfs:isDefinedBy 'catalogit' .
+:Dimension common:isUsedFor 'secondary' .
+
+:width rdf:type owl:DatatypeProperty .
+:width rdfs:domain :Dimension .
+:width rdfs:range xsd:integer .
+:width rdfs:label 'Width' .
+:width rdfs:comment 'Width of basket.' .
+
+:height rdf:type owl:DatatypeProperty .
+:height rdfs:domain :Dimension .
+:height rdfs:range xsd:integer .
+:height rdfs:label 'Height' .
+:height rdfs:comment 'Height of basket.' .
+
+:length rdf:type owl:DatatypeProperty .
+:length rdfs:domain :Dimension .
+:length rdfs:range xsd:integer .
+:height rdfs:label 'Length' .
+:height rdfs:comment 'Length of basket (applicable to oval baskets).' .
+
+#
+# Material and subclasses
+#
+
+:Material rdf:type owl:Class .
+:Material rdfs:label 'Material' .
+:Material rdfs:comment 'Material used in Native American basket making' .
+:Material rdfs:isDefinedBy 'catalogit' .
+:Material common:isUsedFor 'secondary' .
+
+:Hazel rdf:type owl:Class .
+:Hazel rdfs:label 'Hazel' .
+:Hazel rdfs:comment 'Hazel' .
+:Hazel rdfs:subClassOf :Material .
+:Hazel rdfs:isDefinedBy 'catalogit' .
+:Hazel common:isUsedFor 'secondary' .
+
+:Willow rdf:type owl:Class .
+:Willow rdfs:label 'Willow' .
+:Willow rdfs:comment 'Willow' .
+:Willow rdfs:subClassOf :Material .
+:Willow rdfs:isDefinedBy 'catalogit' .
+:Willow common:isUsedFor 'secondary' .
+
+:Conifer rdf:type owl:Class .
+:Conifer rdfs:label 'Conifer' .
+:Conifer rdfs:comment 'Conifer' .
+:Conifer rdfs:subClassOf :Material .
+:Conifer rdfs:isDefinedBy 'catalogit' .
+:Conifer common:isUsedFor 'secondary' .
+
+:BearGrass rdf:type owl:Class .
+:BearGrass rdfs:label 'Bear Grass' .
+:BearGrass rdfs:comment 'Bear Grass' .
+:BearGrass rdfs:subClassOf :Material .
+:BearGrass rdfs:isDefinedBy 'catalogit' .
+:BearGrass common:isUsedFor 'secondary' .
+
+:MaidenhairFern rdf:type owl:Class .
+:MaidenhairFern rdfs:label 'Maidenhair Fern' .
+:MaidenhairFern rdfs:comment 'Maidenhair Fern' .
+:MaidenhairFern rdfs:subClassOf :Material .
+:MaidenhairFern rdfs:isDefinedBy 'catalogit' .
+:MaidenhairFern common:isUsedFor 'secondary' .
+
+:Sumac rdf:type owl:Class .
+:Sumac rdfs:label 'Sumac' .
+:Sumac rdfs:comment 'Sumac' .
+:Sumac rdfs:subClassOf :Material .
+:Sumac rdfs:isDefinedBy 'catalogit' .
+:Sumac common:isUsedFor 'secondary' .
+
+:Sedge rdf:type owl:Class .
+:Sedge rdfs:label 'Sedge' .
+:Sedge rdfs:comment 'Sedge' .
+:Sedge rdfs:subClassOf :Material .
+:Sedge rdfs:isDefinedBy 'catalogit' .
+:Sedge common:isUsedFor 'secondary' .
+
+:BrackenFern rdf:type owl:Class .
+:BrackenFern rdfs:label 'Bracken Fern' .
+:BrackenFern rdfs:comment 'Bracken Fern' .
+:BrackenFern rdfs:subClassOf :Material .
+:BrackenFern rdfs:isDefinedBy 'catalogit' .
+:BrackenFern common:isUsedFor 'secondary' .
+
+
+
+#
+# Basket
+#
+:Basket rdf:type owl:Class .
+:Basket rdfs:label 'Basket' .
+:Basket rdfs:comment 'Native American basket' .
+:Basket rdfs:subClassOf natam:Item .
+:Basket rdfs:isDefinedBy 'catalogit' .
+:Basket common:isUsedFor 'primary' .
+
+:basketMaterials rdf:type rdf:Seq .
+:basketMaterials rdfs:domain :Basket .
+:basketMaterials rdfs:range :Material .
+:basketMaterials rdfs:label 'Materials' .
+:basketMaterials rdfs:comment 'Materials that basket is made from' .
+
+:basketDimensions rdf:type owl:ObjectProperty .
+:basketDimensions rdfs:domain :Basket .
+:basketDimensions rdfs:range :Dimension .
+:basketDimensions rdfs:label 'Dimension' .
+:basketDimensions rdfs:comment 'Dimensions of the basket (width, height, length)' .
+
+:basketRegion rdf:type owl:ObjectProperty .
+:basketRegion rdfs:domain :Basket .
+:basketRegion rdfs:range natam:Region .
+:basketRegion rdfs:label 'Region' .
+:basketRegion rdfs:comment 'Region the basket is from' .
+
+
+#
+# Coiled classes
+#
+
+#
+# Foundation
+#
+:Foundation rdf:type owl:Class .
+:Foundation rdfs:label 'Foundation' .
+:Foundation rdfs:comment 'Coiled basket foundation' .
+:Foundation rdfs:isDefinedBy 'catalogit' .
+:Foundation common:isUsedFor 'secondary' .
+
+# one of: 1 rod, 2 rod, 3 rod, 3+ rod, bundle, rod-and-bundle, other
+:foundationType rdf:type owl:DatatypeProperty .
+:foundationType rdfs:domain :Foundation .
+:foundationType rdfs:range xsd:string .
+:foundationMaterials rdfs:label 'Type' .
+:foundationMaterials rdfs:comment 'Type of foundation such as 1 rod, 2 rod, 3 rod, 3+ rod, bundle, rod-and-bundle, other' .
+
+:foundationMaterials rdf:type rdf:Seq .
+:foundationMaterials rdfs:domain :Foundation .
+:foundationMaterials rdfs:range :Material .
+:foundationMaterials rdfs:label 'Materials' .
+:foundationMaterials rdfs:comment 'Materials the coiled basket foundation is made from' .
+
+#
+# Stitch
+#
+
+:Stitch rdf:type owl:Class .
+:Stitch rdfs:label 'Stitch' .
+:Stitch rdfs:comment 'Coiled basket stitch' .
+:Stitch rdfs:isDefinedBy 'catalogit' .
+:Stitch common:isUsedFor 'secondary' .
+
+:stitchType rdf:type owl:DatatypeProperty .
+:stitchType rdfs:domain :Stitch .
+:stitchType rdfs:range xsd:string .
+:stitchType rdfs:label 'Type' .
+:stitchType rdfs:comment 'Type of stitching (or patterns) used in the coiled basket.' .
+
+:stitchMaterials rdf:type rdf:Seq .
+:stitchMaterials rdfs:domain :Stitch .
+:stitchMaterials rdfs:range :Material .
+:stitchMaterials rdfs:label 'Materials' .
+:stitchMaterials rdfs:comment 'Materials used in the stitching of a coiled basket' .
+
+#
+# Coiled
+#
+:Coiled rdf:type owl:Class .
+:Coiled rdfs:label 'Coiled Basket' .
+:Coiled rdfs:comment 'Coiled basket' .
+:Coiled rdfs:subClassOf :Basket .
+:Coiled rdfs:isDefinedBy 'catalogit' .
+:Coiled common:isUsedFor 'primary' .
+
+:foundation rdf:type owl:ObjectProperty .
+:foundation rdfs:label 'Foundation' .
+:foundation rdfs:comment 'The basket\'s foundation' .
+:foundation rdfs:domain :Coiled .
+:foundation rdfs:range :Foundation .
+
+:stitch rdf:type owl:ObjectProperty .
+:stitch rdfs:label 'Stitch' .
+:stitch rdfs:comment 'Stitching used in the basket' .
+:stitch rdfs:domain :Coiled .
+:stitch rdfs:range :Stitch .
+
+# one of: round, oval, plaited, knotted, clock spring
+:coilStart rdf:type owl:DatatypeProperty .
+:coilStart rdfs:label 'Type' .
+:coilStart rdfs:comment 'Type of stitching (or patterns) used in the coiled basket.' .
+:coilStart rdfs:domain :Stitch .
+:coilStart rdfs:range xsd:string .
+
+:coilDirection rdf:type owl:DatatypeProperty .
+:coilDirection rdfs:label 'Direction' .
+:coilDirection rdfs:comment 'Direction of coil (left or right)' .
+:coilDirection rdfs:domain :Stitch .
+:coilDirection rdfs:range xsd:string .
+
+:coilDesign rdf:type owl:DatatypeProperty .
+:coilDesign rdfs:label 'Design' .
+:coilDesign rdfs:comment 'Stitch design' .
+:coilDesign rdfs:domain :Stitch .
+:coilDesign rdfs:range xsd:string .
+
+#
+#Twined
+#
+:Twined rdf:type owl:Class .
+:Twined rdfs:label 'Twined Basket' .
+:Twined rdfs:comment 'Twined Basket' .
+:Twined rdfs:subClassOf :Basket .
+:Twined rdfs:isDefinedBy 'catalogit' .
+:Twined common:isUsedFor 'primary' .
+
+
+#
+# Plaited
+#
+:Plaited rdf:type owl:Class .
+:Plaited rdfs:label 'Plaited Basket' .
+:Plaited rdfs:comment 'Plaited basket' .
+:Plaited rdfs:subClassOf :Basket .
+:Plaited rdfs:isDefinedBy 'catalogit' .
+:Plaited common:isUsedFor 'primary' .
+
+
+#
+# Bark
+#
+:Bark rdf:type owl:Class .
+:Bark rdfs:label 'Bark Basket' .
+:Bark rdfs:comment 'Basket made of bark' .
+:Bark rdfs:subClassOf :Basket .
+:Bark rdfs:isDefinedBy 'catalogit' .
+:Bark common:isUsedFor 'primary' .

@@ -27,7 +27,7 @@ dc:description common:displayOrder 2 .
 
 lifeevent:Moment rdf:type owl:Class .
 lifeevent:Moment rdfs:label 'Moment' .
-lifeevent:Moment rdfs:comment 'An arbitrary life moment to capture -- scene, sound, thought, image, etc' .
+lifeevent:Moment rdfs:comment 'An arbitrary life moment to capture -- scene, sound, thought, image, etc.' .
 lifeevent:Moment rdfs:subClassOf lifeevent:LifeLogEvent .
 lifeevent:Moment rdfs:isDefinedBy 'catalogit' .
 lifeevent:Moment common:isUsedFor 'primary' .

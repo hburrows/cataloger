@@ -17,6 +17,7 @@ THUMBNAIL_SIZE = (60,60)
 #
 class Graph(models.Model):
   graph_uri = models.CharField(max_length=1024)
+  label = models.TextField(max_length=128, null=True)
 
 
 # additional information stored with each user

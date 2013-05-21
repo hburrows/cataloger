@@ -1,30 +1,23 @@
 # -*- coding: utf-8 -*-
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-class Migration(DataMigration):
+
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/household_items/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/native_american/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/musical_instruments/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/life_events/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/collectable/');
-        g.save()
-        g = orm.Graph(graph_uri='http://example.com/rdf/schemas/community/baskets/native_american/');
-        g.save()
+        # Adding field 'UserProfile.label'
+        db.add_column(u'api_userprofile', 'label',
+                      self.gf('django.db.models.fields.TextField')(max_length=128, null=True),
+                      keep_default=False)
+
 
     def backwards(self, orm):
-        for g in orm.Graph.objects.all():
-          g.delete()
+        # Deleting field 'UserProfile.label'
+        db.delete_column(u'api_userprofile', 'label')
+
 
     models = {
         u'api.graph': {
@@ -51,6 +44,7 @@ class Migration(DataMigration):
         u'api.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
             'graphs': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['api.Graph']", 'symmetrical': 'False'}),
+            'label': ('django.db.models.fields.TextField', [], {'max_length': '128', 'null': 'True'}),
             'schema': ('django.db.models.fields.TextField', [], {'max_length': '128', 'null': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['auth.User']", 'unique': 'True', 'primary_key': 'True'})
         },
@@ -93,4 +87,3 @@ class Migration(DataMigration):
     }
 
     complete_apps = ['api']
-    symmetrical = True

@@ -16,7 +16,7 @@ class GraphsHandler(BaseHandler):
   #fields = ('name', 'email')
   
   def read(self, request, class_id=None):
-    return [{'graph_uri': g.graph_uri} for g in Graph.objects.all()]  
+    return [{'graph_uri': g.graph_uri, 'label': g.label} for g in Graph.objects.all()]  
 
   def create(self, request):
     pass
