@@ -76,3 +76,4 @@ collectable:valuationOn rdfs:domain collectable:Collectable .
 collectable:valuationOn rdfs:range collectable:Valuation .
 collectable:valuationOn rdfs:label 'Valuation' .
 collectable:valuationOn rdfs:comment 'Value of the item on a certain date.' .
+collectable:valuationOn common:embed true .

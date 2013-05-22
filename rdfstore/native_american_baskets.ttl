@@ -132,13 +132,13 @@
 :basketDimensions rdfs:range :Dimension .
 :basketDimensions rdfs:label 'Dimension' .
 :basketDimensions rdfs:comment 'Dimensions of the basket (width, height, length)' .
+:basketDimensions common:embed true .
 
 :basketRegion rdf:type owl:ObjectProperty .
 :basketRegion rdfs:domain :Basket .
 :basketRegion rdfs:range natam:Region .
 :basketRegion rdfs:label 'Region' .
 :basketRegion rdfs:comment 'Region the basket is from' .
-
 
 #
 # Coiled classes
@@ -157,8 +157,17 @@
 :foundationType rdf:type owl:DatatypeProperty .
 :foundationType rdfs:domain :Foundation .
 :foundationType rdfs:range xsd:string .
-:foundationMaterials rdfs:label 'Type' .
-:foundationMaterials rdfs:comment 'Type of foundation such as 1 rod, 2 rod, 3 rod, 3+ rod, bundle, rod-and-bundle, other' .
+:foundationType rdfs:label 'Type' .
+:foundationType rdfs:comment 'Type of foundation such as 1 rod, 2 rod, 3 rod, 3+ rod, bundle, rod-and-bundle, other' .
+:foundationType common:enumeration [
+	rdf:_1 '1 Rod' ;
+	rdf:_2 '2 Rod' ;
+	rdf:_3 '3 Rod' ; 
+	rdf:_4 '3+ Rod' ;
+	rdf:_5 'Bundle' ;
+	rdf:_6 'Rod and Bundle' ;
+	rdf:_8 'Other' ;
+] .
 
 :foundationMaterials rdf:type rdf:Seq .
 :foundationMaterials rdfs:domain :Foundation .
@@ -212,21 +221,32 @@
 
 # one of: round, oval, plaited, knotted, clock spring
 :coilStart rdf:type owl:DatatypeProperty .
-:coilStart rdfs:label 'Type' .
+:coilStart rdfs:label 'Coil Start' .
 :coilStart rdfs:comment 'Type of stitching (or patterns) used in the coiled basket.' .
-:coilStart rdfs:domain :Stitch .
+:coilStart rdfs:domain :Coiled .
 :coilStart rdfs:range xsd:string .
+:coilStart common:enumeration [
+	rdf:_1 'Round' ;
+	rdf:_2 'Oval' ;
+	rdf:_3 'Plaited' ;
+	rdf:_4 'Knotted' ;
+	rdf:_5 'Clock Spring' ;
+] .
 
 :coilDirection rdf:type owl:DatatypeProperty .
 :coilDirection rdfs:label 'Direction' .
 :coilDirection rdfs:comment 'Direction of coil (left or right)' .
-:coilDirection rdfs:domain :Stitch .
+:coilDirection rdfs:domain :Coiled .
 :coilDirection rdfs:range xsd:string .
+:coilDirection common:enumeration [
+	rdf:_1 'Left' ;
+	rdf:_2 'Right' ;
+] .
 
 :coilDesign rdf:type owl:DatatypeProperty .
 :coilDesign rdfs:label 'Design' .
 :coilDesign rdfs:comment 'Stitch design' .
-:coilDesign rdfs:domain :Stitch .
+:coilDesign rdfs:domain :Coiled .
 :coilDesign rdfs:range xsd:string .
 
 #

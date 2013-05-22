@@ -30,7 +30,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX common: <{common}>
-SELECT ?property ?label ?range ?type ?comment ?embed
+SELECT ?property ?label ?range ?type ?comment ?embed ?enum
 {graphs}
 WHERE
 {{
@@ -41,6 +41,7 @@ WHERE
   OPTIONAL {{ ?property rdfs:comment ?comment . }}
   OPTIONAL {{ ?property common:displayOrder ?order . }}
   OPTIONAL {{ ?property common:embed ?embed . }}
+  OPTIONAL {{ ?property common:enumeration ?enum }}
   FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
 }}
 ORDER BY (?order)'''
@@ -53,14 +54,38 @@ ORDER BY (?order)'''
   #for cls, label, prop_range, prop_type, comment in g.query(rq):
   for result in sparql_query(rq)["results"]["bindings"]:
 
-    properties.append({
-      'property': result['property']['value'],
+    propertyId = result['property']['value']
+
+    propertyDict = {
+      'property': propertyId,
       'label': result['label']['value'] if 'label' in result else None,
       'range': result['range']['value'] if 'range' in result else None,
       'type': result['type']['value'],
-      'comment': result['comment']['value'] if 'comment' in result else None,
-      'embed': result['embed']['value'] if 'embed' in result else False
-    })
+      'comment': result['comment']['value'] if 'comment' in result else None
+    }
+
+    if 'embed' in result:
+      propertyDict['embed'] = result['embed']['value']
+
+    if 'enum' in result:
+      template = '''
+PREFIX common: <{common}>
+SELECT ?idx ?value
+{graphs}
+WHERE
+{{
+  <{property}> common:enumeration [ ?idx ?value ] ;
+}}'''
+
+      rq = template.format(graphs=graphs, common=SCHEMA_GRAPH_URI, property=propertyId)
+
+      enumerations = []
+      for distinctValue in sparql_query(rq)["results"]["bindings"]:
+        enumerations.append(distinctValue['value']['value'])
+      
+      propertyDict['oneOf'] = enumerations
+
+    properties.append(propertyDict)
 
 #   t1 = time()
 #   print(str(t1 - t0))

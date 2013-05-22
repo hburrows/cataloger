@@ -14,6 +14,8 @@ PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 
 PREFIX common: <http://example.com/rdf/schemas/>
 
+CLEAR GRAPH common: ;
+
 # RDF and RDFS
 LOAD <http://www.w3.org/2000/01/rdf-schema> INTO GRAPH common: ;
 LOAD <http://www.w3.org/1999/02/22-rdf-syntax-ns> INTO GRAPH common: ;
@@ -128,6 +130,10 @@ INSERT DATA {
   common:isUsedFor rdf:type owl:DatatypeProperty .
   common:isUsedFor rdfs:domain common:Entry .
   common:isUsedFor rdfs:label 'A tag used to indicate how a class is used.' .
+
+	common:enumeration rdf:type rdf:Seq .
+  common:enumeration rdfs:range xsd:string .
+  common:enumeration rdfs:label 'A list of values the subject must equal' .
 
   foaf:Image common:isUsedFor 'secondary' .
   foaf:Agent common:isUsedFor 'secondary' .

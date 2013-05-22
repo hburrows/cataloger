@@ -20,75 +20,46 @@
 :Region rdf:type owl:Class .
 :Region rdfs:label 'Region' .
 :Region rdfs:comment 'Native American region' .
+
 :Region rdfs:isDefinedBy 'catalogit' .
 :Region common:isUsedFor 'secondary' .
 
-:Southeast rdfs:label 'Southeast' .
-:Southeast rdfs:comment 'Southeast Native American region' .
-:Southeast rdfs:subClassOf :Region .
-:Southeast rdfs:isDefinedBy 'catalogit' .
-:Southeast common:isUsedFor 'secondary' .
+dc:title rdfs:domain :Region .
+dc:description rdfs:domain :Region .
 
-:Northeast rdfs:label 'Northeast' .
-:Northeast rdfs:comment 'Northeast Native American region' .
-:Northeast rdfs:subClassOf :Region .
-:Northeast rdfs:isDefinedBy 'catalogit' .
-:Northeast common:isUsedFor 'secondary' .
 
-:Plains rdfs:label 'Plains' .
-:Plains rdfs:comment 'Plains Native American region' .
-:Plains rdfs:subClassOf :Region .
-:Plains rdfs:isDefinedBy 'catalogit' .
-:Plains common:isUsedFor 'secondary' .
+:southeast_region rdf:type :Region .
+:southeast_region dc:title 'Southeast' .
 
-:ArcticAndSubArctic rdfs:label 'Arctic and Sub-Arctic' .
-:ArcticAndSubArctic rdfs:comment 'Arctic and Sub-Arctic Native American region' .
-:ArcticAndSubArctic rdfs:subClassOf :Region .
-:ArcticAndSubArctic rdfs:isDefinedBy 'catalogit' .
-:ArcticAndSubArctic common:isUsedFor 'secondary' .
+:northeast_region rdf:type :Region .
+:northeast_region dc:title 'Northeast' .
 
-:PacificNorthwest rdfs:label 'Pacific Northwest' .
-:PacificNorthwest rdfs:comment 'Pacific Northwest Native American region' .
-:PacificNorthwest rdfs:subClassOf :Region .
-:PacificNorthwest rdfs:isDefinedBy 'catalogit' .
-:PacificNorthwest common:isUsedFor 'secondary' .
+:plains_region rdf:type :Region . 
+:plains_region dc:title 'Plains' . 
 
-:CascadesPlateau rdfs:label 'Cascades/Plateau' .
-:CascadesPlateau rdfs:comment 'Cascades/Plateau Native American region' .
-:CascadesPlateau rdfs:subClassOf :Region .
-:CascadesPlateau rdfs:isDefinedBy 'catalogit' .
-:CascadesPlateau common:isUsedFor 'secondary' .
+:artic_subartic_region rdf:type :Region .
+:artic_subartic_region dc:title 'Arctic and Sub-Arctic' .
 
-:NorthernCaliufornia rdfs:label 'Northern Caliufornia' .
-:NorthernCaliufornia rdfs:comment 'Northern Caliufornia Native American region' .
-:NorthernCaliufornia rdfs:subClassOf :Region .
-:NorthernCaliufornia rdfs:isDefinedBy 'catalogit' .
-:NorthernCaliufornia common:isUsedFor 'secondary' .
+:pacificnorthwest_region rdf:type :Region .
+:pacificnorthwest_region dc:title 'Pacific Northwest' .
 
-:CentralCalifornia rdfs:label 'Central California' .
-:CentralCalifornia rdfs:comment 'Central California Native American region' .
-:CentralCalifornia rdfs:subClassOf :Region .
-:CentralCalifornia rdfs:isDefinedBy 'catalogit' .
-:CentralCalifornia common:isUsedFor 'secondary' .
+:cascades_plateau rdf:type :Region .
+:cascades_plateau dc:title 'Cascades/Plateau' .
 
-:SothernCalifornia rdfs:label 'Sothern California' .
-:SothernCalifornia rdfs:comment 'Sothern California Native American region' .
-:SothernCalifornia rdfs:subClassOf :Region .
-:SothernCalifornia rdfs:isDefinedBy 'catalogit' .
-:SothernCalifornia common:isUsedFor 'secondary' .
+:northerncalifornia_region rdf:type :Region .
+:northerncalifornia_region dc:title 'Northern California' .
 
-:GreatBasin rdfs:label 'Great Basin' .
-:GreatBasin rdfs:comment 'Great Basin Native American region' .
-:GreatBasin rdfs:subClassOf :Region .
-:GreatBasin rdfs:isDefinedBy 'catalogit' .
-:GreatBasin common:isUsedFor 'secondary' .
+:central_california rdf:type :Region .
+:central_california dc:title 'Central California' .
 
-:Sauthwest rdfs:label 'Sauthwest' .
-:Sauthwest rdfs:comment 'Sauthwest Native American region' .
-:Sauthwest rdfs:subClassOf :Region .
-:Sauthwest rdfs:isDefinedBy 'catalogit' .
-:Sauthwest common:isUsedFor 'secondary' .
+:southercalifornia_region rdf:type :Region .
+:southercalifornia_region dc:title 'Southern California' .
 
+:greatbasin_region rdf:type :Region .
+:greatbasin_region dc:title 'Great Basin' .
+
+:southeast_region rdf:type :Region .
+:southeast_region dc:title 'Southwest' .
 
 
 #
