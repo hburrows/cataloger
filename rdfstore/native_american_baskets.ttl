@@ -212,17 +212,19 @@
 :foundation rdfs:comment 'The basket\'s foundation' .
 :foundation rdfs:domain :Coiled .
 :foundation rdfs:range :Foundation .
+:foundation common:embed true .
 
 :stitch rdf:type owl:ObjectProperty .
 :stitch rdfs:label 'Stitch' .
 :stitch rdfs:comment 'Stitching used in the basket' .
 :stitch rdfs:domain :Coiled .
 :stitch rdfs:range :Stitch .
+:stitch common:embed true .
 
 # one of: round, oval, plaited, knotted, clock spring
 :coilStart rdf:type owl:DatatypeProperty .
-:coilStart rdfs:label 'Coil Start' .
-:coilStart rdfs:comment 'Type of stitching (or patterns) used in the coiled basket.' .
+:coilStart rdfs:label 'Start' .
+:coilStart rdfs:comment 'Start to the coil basket.' .
 :coilStart rdfs:domain :Coiled .
 :coilStart rdfs:range xsd:string .
 :coilStart common:enumeration [
@@ -232,6 +234,12 @@
 	rdf:_4 'Knotted' ;
 	rdf:_5 'Clock Spring' ;
 ] .
+
+:coilFinish rdf:type owl:DatatypeProperty .
+:coilFinish rdfs:label 'Finish' .
+:coilFinish rdfs:comment 'Finish to the coil basket' .
+:coilFinish rdfs:domain :Coiled .
+:coilFinish rdfs:range xsd:string .
 
 :coilDirection rdf:type owl:DatatypeProperty .
 :coilDirection rdfs:label 'Direction' .
@@ -252,6 +260,63 @@
 #
 #Twined
 #
+
+:Warp rdf:type owl:Class .
+:Warp rdfs:label 'Warp' .
+:Warp rdfs:comment 'Twined basket warp' .
+:Warp rdfs:isDefinedBy 'catalogit' .
+:Warp common:isUsedFor 'secondary' .
+
+:warpType rdf:type owl:DatatypeProperty .
+:warpType rdfs:label 'Warp Type' .
+:warpType rdfs:comment 'Warp pattern used in basket' .
+:warpType rdfs:domain :Warp .
+:warpType rdfs:range xsd:string .
+:warpType common:enumeration [
+  rdf:_1 'Simple: plain or parallel arrangement' ;
+  rdf:_2 'Simple: diverted or zigzap arrangement' ;
+  rdf:_3 'Simple: diagonal or crossed arrangement' ;
+  rdf:_4 'Compound: compound arrangements, combining two or more of the above types' ;
+] .
+
+:warpMaterial rdf:type rdf:Seq .
+:warpMaterial rdfs:domain :Warp .
+:warpMaterial rdfs:range :Material .
+:warpMaterial rdfs:label 'Materials' .
+:warpMaterial rdfs:comment 'Materials used in the warp of the twined basket' .
+
+:Weft rdf:type owl:Class .
+:Weft rdfs:label 'Warp' .
+:Weft rdfs:comment 'Twined basket warp' .
+:Weft rdfs:isDefinedBy 'catalogit' .
+:Weft common:isUsedFor 'secondary' .
+
+:weftType rdf:type owl:DatatypeProperty .
+:weftType rdfs:label 'Weft Type' .
+:weftType rdfs:comment 'Weft pattern used in basket' .
+:weftType rdfs:domain :Warp .
+:weftType rdfs:range xsd:string .
+:weftType common:enumeration [
+  rdf:_1 'Simple' ;
+  rdf:_2 'Simple: Plain twining, S or Z stitch slan' ;
+  rdf:_3 'Simple: Plain twining, S or Z stitch slan (1/1 interval engagement)' ;
+  rdf:_4 'Simple: Diagonal twining, S or Z stich slant' ;
+  rdf:_5 'Simple: Diagonal twining, S or Z stich slant (2/2 interval engagement)' ;
+  rdf:_6 'Simple: Diagonal twining, S or Z stich slant (other interval variations)' ;
+  rdf:_7 'Compound' ;
+  rdf:_8 'Compound: Wrap twining, Sor Z stitch slant' ;
+  rdf:_9 'Compound: Lattice twining, S or Z stitch (inner surface)' ;
+  rdf:_10 'Compound: Three-stand twining, S or Z stitch slant' ;
+  rdf:_11 'Compound: "Between weave twining", S or Z stitch slant' ;
+] .
+
+:weftMaterial rdf:type rdf:Seq .
+:weftMaterial rdfs:domain :Weft .
+:weftMaterial rdfs:range :Material .
+:weftMaterial rdfs:label 'Materials' .
+:weftMaterial rdfs:comment 'Materials used in the weft of the twined basket' .
+
+
 :Twined rdf:type owl:Class .
 :Twined rdfs:label 'Twined Basket' .
 :Twined rdfs:comment 'Twined Basket' .
@@ -259,6 +324,41 @@
 :Twined rdfs:isDefinedBy 'catalogit' .
 :Twined common:isUsedFor 'primary' .
 
+:warp rdf:type owl:ObjectProperty .
+:warp rdfs:label 'Warp' .
+:warp rdfs:comment 'The basket\'s warp' .
+:warp rdfs:domain :Twined .
+:warp rdfs:range :Warp .
+:warp common:displayOrder 1 .
+:warp common:embed true .
+
+:weft rdf:type owl:ObjectProperty .
+:weft rdfs:label 'Weft' .
+:weft rdfs:comment 'The basket\'s weft' .
+:weft rdfs:domain :Twined .
+:weft rdfs:range :Weft .
+:weft common:displayOrder 2 .
+:weft common:embed true .
+
+:twinedStart rdf:type owl:DatatypeProperty .
+:twinedStart rdfs:label 'Start' .
+:twinedStart rdfs:comment 'Start to the twined basket' .
+:twinedStart rdfs:domain :Twined .
+:twinedStart rdfs:range xsd:string .
+:twinedStart common:enumeration [
+  rdf:_1 'patterned twined start, non-intersecting spokes' ;
+  rdf:_2 'patterned twined start, intersecting layered spokes' ;
+  rdf:_3 'patterned twined start, intersecting plaited spokes' ;
+  rdf:_4 'patterned twined start, intersecting interwoven spokes' ;
+] .
+:twinedStart common:displayOrder 3 .
+
+:twinedFinish rdf:type owl:DatatypeProperty .
+:twinedFinish rdfs:label 'Finish' .
+:twinedFinish rdfs:comment 'Finish to the twined basket' .
+:twinedFinish rdfs:domain :Twined .
+:twinedFinish rdfs:range xsd:string .
+:twinedFinish common:displayOrder 4 .
 
 #
 # Plaited
@@ -270,6 +370,37 @@
 :Plaited rdfs:isDefinedBy 'catalogit' .
 :Plaited common:isUsedFor 'primary' .
 
+:plaitedType rdf:type owl:DatatypeProperty .
+:plaitedType rdfs:label 'Type' .
+:plaitedType rdfs:comment 'Plaited type' .
+:plaitedType rdfs:domain :Plaited .
+:plaitedType rdfs:range xsd:string .
+:plaitedType common:enumeration [
+  rdf:_1 'Plain' ;
+  rdf:_2 'Plain: 1/1 interval engagement' ;
+  rdf:_3 'Twill' ;
+  rdf:_3 'Twill: 2/2 interval engagement' ;
+  rdf:_3 'Twill: 3/3 interval engagement' ;
+  rdf:_3 'Twill: 4/4 interval engagement' ;
+  rdf:_3 'Twill: other interval variations' ;
+] .
+:plaitedType common:displayOrder 1 .
+
+:plaitedStart rdf:type owl:DatatypeProperty .
+:plaitedStart rdfs:label 'Start' .
+:plaitedStart rdfs:comment 'Start to plaited basket' .
+:plaitedStart rdfs:domain :Plaited .
+:plaitedStart rdfs:range xsd:string .
+#:plaitedStart common:enumeration [] .
+:plaitedStart common:displayOrder 2 .
+
+:plaitedFinish rdf:type owl:DatatypeProperty .
+:plaitedFinish rdfs:label 'Finish' .
+:plaitedFinish rdfs:comment 'Finish to the plaited basket' .
+:plaitedFinish rdfs:domain :Plaited .
+:plaitedFinish rdfs:range xsd:string .
+:plaitedFinish common:displayOrder 3 .
+
 
 #
 # Bark
@@ -280,3 +411,10 @@
 :Bark rdfs:subClassOf :Basket .
 :Bark rdfs:isDefinedBy 'catalogit' .
 :Bark common:isUsedFor 'primary' .
+
+:barkFinish rdf:type owl:DatatypeProperty .
+:barkFinish rdfs:label 'Finish' .
+:barkFinish rdfs:comment 'Finish to the bark basket' .
+:barkFinish rdfs:domain :Bark .
+:barkFinish rdfs:range xsd:string .
+

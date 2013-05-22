@@ -10,70 +10,78 @@
 @prefix common: <http://example.com/rdf/schemas/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 
-@prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
+@prefix : <http://example.com/rdf/schemas/community/collectable/> .
 
 #
 # Valuation class
 #
-collectable:Valuation rdf:type owl:Class .
-collectable:Valuation rdfs:label 'Valuation' .
-collectable:Valuation common:isUsedFor 'secondary' .
+:Valuation rdf:type owl:Class .
+:Valuation rdfs:label 'Valuation' .
+:Valuation common:isUsedFor 'secondary' .
 
-collectable:valuation.value rdf:type owl:DatatypeProperty .
-collectable:valuation.value common:displayOrder 1 .
-collectable:valuation.value rdfs:domain collectable:Valuation .
-collectable:valuation.value rdfs:range xsd:decimal .
-collectable:valuation.value rdfs:label 'Value' .
-collectable:valuation.value rdfs:comment 'Real or estimated value of item.' .
+:valuation.value rdf:type owl:DatatypeProperty .
+:valuation.value common:displayOrder 1 .
+:valuation.value rdfs:domain :Valuation .
+:valuation.value rdfs:range xsd:decimal .
+:valuation.value rdfs:label 'Value' .
+:valuation.value rdfs:comment 'Real or estimated value of item.' .
 
-collectable:valuation.date rdf:type owl:DatatypeProperty .
-collectable:valuation.date common:displayOrder 2 .
-collectable:valuation.date rdfs:domain collectable:Valuation .
-collectable:valuation.date rdfs:range xsd:dateTime .
-collectable:valuation.date rdfs:label 'Date' .
-collectable:valuation.date rdfs:comment 'Date valuation was provided.' .
+:valuation.date rdf:type owl:DatatypeProperty .
+:valuation.date common:displayOrder 2 .
+:valuation.date rdfs:domain :Valuation .
+:valuation.date rdfs:range xsd:dateTime .
+:valuation.date rdfs:label 'Date' .
+:valuation.date rdfs:comment 'Date valuation was provided.' .
 
-collectable:valuation.agent rdf:type owl:ObjectProperty .
-collectable:valuation.agent common:displayOrder 3 .
-collectable:valuation.agent rdfs:domain collectable:Valuation .
-collectable:valuation.agent rdfs:range foaf:Agent .
-collectable:valuation.agent rdfs:label 'Provider' .
-collectable:valuation.agent rdfs:comment 'Person or organization that provided the valuation.' .
+:valuation.agent rdf:type owl:ObjectProperty .
+:valuation.agent common:displayOrder 3 .
+:valuation.agent rdfs:domain :Valuation .
+:valuation.agent rdfs:range foaf:Agent .
+:valuation.agent rdfs:label 'Provider' .
+:valuation.agent rdfs:comment 'Person or organization that provided the valuation.' .
 
 ##
 ## The Collectable class
 ##
-collectable:Collectable rdf:type owl:Class .
-collectable:Collectable rdfs:subClassOf common:Entry .
-collectable:Collectable rdfs:label 'Collectable' .
-collectable:Collectable rdfs:comment 'A physical item that you collect and has valuation, acquire price, acquire data, etc.' .
-collectable:Collectable common:isDefinedBy 'catalogit' .
-collectable:Collectable common:isUsedFor 'primary' .
+:Collectable rdf:type owl:Class .
+:Collectable rdfs:subClassOf common:Entry .
+:Collectable rdfs:label 'Item' .
+:Collectable rdfs:comment 'A physical item that you collect and has valuation, acquire price, acquire data, etc.' .
+:Collectable common:isDefinedBy 'catalogit' .
+:Collectable common:isUsedFor 'primary' .
 
-dc:title rdfs:domain collectable:Collectable .
+dc:title rdfs:domain :Collectable .
 dc:title common:displayOrder 1 .
 
-dc:description rdfs:domain collectable:Collectable .
+dc:description rdfs:domain :Collectable .
 dc:description common:displayOrder 2 .
 
-collectable:aquireDate rdf:type owl:DatatypeProperty .
-collectable:aquireDate common:displayOrder 3 .
-collectable:aquireDate rdfs:domain collectable:Collectable .
-collectable:aquireDate rdfs:range xsd:dateTime .
-collectable:aquireDate rdfs:label 'Acquire Date' .
-collectable:aquireDate rdfs:comment 'Date the item was acquired.' .
+:aquireDate rdf:type owl:DatatypeProperty .
+:aquireDate common:displayOrder 3 .
+:aquireDate rdfs:domain :Collectable .
+:aquireDate rdfs:range xsd:dateTime .
+:aquireDate rdfs:label 'Acquire Date' .
+:aquireDate rdfs:comment 'Date the item was acquired.' .
 
-collectable:aquirePrice rdf:type owl:DatatypeProperty .
-collectable:aquirePrice common:displayOrder 4 .
-collectable:aquirePrice rdfs:domain collectable:Collectable .
-collectable:aquirePrice rdfs:range xsd:decimal .
-collectable:aquirePrice rdfs:label 'Acquire Price' .
-collectable:aquirePrice rdfs:comment 'Cost to acquire the item.' .
+:aquirePrice rdf:type owl:DatatypeProperty .
+:aquirePrice common:displayOrder 4 .
+:aquirePrice rdfs:domain :Collectable .
+:aquirePrice rdfs:range xsd:decimal .
+:aquirePrice rdfs:label 'Acquire Price' .
+:aquirePrice rdfs:comment 'Cost to acquire the item.' .
 
-collectable:valuationOn rdf:type owl:ObjectProperty .
-collectable:valuationOn common:displayOrder 5 .
-collectable:valuationOn rdfs:domain collectable:Collectable .
-collectable:valuationOn rdfs:range collectable:Valuation .
-collectable:valuationOn rdfs:label 'Valuation' .
-collectable:valuationOn rdfs:comment 'Value of the item on a certain date.' .
-collectable:valuationOn common:embed true .
+:valuationOn rdf:type owl:ObjectProperty .
+:valuationOn common:displayOrder 5 .
+:valuationOn rdfs:domain :Collectable .
+:valuationOn rdfs:range :Valuation .
+:valuationOn rdfs:label 'Valuation' .
+:valuationOn rdfs:comment 'Value of the item on a certain date.' .
+:valuationOn common:embed true .
+
+:notes rdf:type owl:DatatypeProperty .
+:notes common:displayOrder 6 .
+:notes rdfs:domain :Collectable .
+:notes rdfs:range xsd:string .
+:notes rdfs:label 'Notes' .
+:notes rdfs:comment 'General notes.' .
+

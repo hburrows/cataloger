@@ -19,7 +19,7 @@ REQUIRED_VOCABULARIES = [
 ]
 
 DEFAULT_VOCABULARIES = [
-    'http://example.com/rdf/schemas/community/household_items/'
+    'http://example.com/rdf/schemas/community/life_events/'
 ]
 
 MYSQL_HOST = 'localhost'
