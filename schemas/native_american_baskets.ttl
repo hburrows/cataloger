@@ -132,7 +132,7 @@
 :basketDimensions rdfs:range :Dimension .
 :basketDimensions rdfs:label 'Dimension' .
 :basketDimensions rdfs:comment 'Dimensions of the basket (width, height, length)' .
-:basketDimensions common:embed true .
+:basketDimensions common:bnode true .
 
 :basketRegion rdf:type owl:ObjectProperty .
 :basketRegion rdfs:domain :Basket .
@@ -212,14 +212,14 @@
 :foundation rdfs:comment 'The basket\'s foundation' .
 :foundation rdfs:domain :Coiled .
 :foundation rdfs:range :Foundation .
-:foundation common:embed true .
+:foundation common:bnode true .
 
 :stitch rdf:type owl:ObjectProperty .
 :stitch rdfs:label 'Stitch' .
 :stitch rdfs:comment 'Stitching used in the basket' .
 :stitch rdfs:domain :Coiled .
 :stitch rdfs:range :Stitch .
-:stitch common:embed true .
+:stitch common:bnode true .
 
 # one of: round, oval, plaited, knotted, clock spring
 :coilStart rdf:type owl:DatatypeProperty .
@@ -294,7 +294,7 @@
 :weftType rdf:type owl:DatatypeProperty .
 :weftType rdfs:label 'Weft Type' .
 :weftType rdfs:comment 'Weft pattern used in basket' .
-:weftType rdfs:domain :Warp .
+:weftType rdfs:domain :Weft .
 :weftType rdfs:range xsd:string .
 :weftType common:enumeration [
   rdf:_1 'Simple' ;
@@ -330,7 +330,7 @@
 :warp rdfs:domain :Twined .
 :warp rdfs:range :Warp .
 :warp common:displayOrder 1 .
-:warp common:embed true .
+:warp common:bnode true .
 
 :weft rdf:type owl:ObjectProperty .
 :weft rdfs:label 'Weft' .
@@ -338,7 +338,7 @@
 :weft rdfs:domain :Twined .
 :weft rdfs:range :Weft .
 :weft common:displayOrder 2 .
-:weft common:embed true .
+:weft common:bnode true .
 
 :twinedStart rdf:type owl:DatatypeProperty .
 :twinedStart rdfs:label 'Start' .
@@ -346,10 +346,10 @@
 :twinedStart rdfs:domain :Twined .
 :twinedStart rdfs:range xsd:string .
 :twinedStart common:enumeration [
-  rdf:_1 'patterned twined start, non-intersecting spokes' ;
-  rdf:_2 'patterned twined start, intersecting layered spokes' ;
-  rdf:_3 'patterned twined start, intersecting plaited spokes' ;
-  rdf:_4 'patterned twined start, intersecting interwoven spokes' ;
+  rdf:_1 'Patterned twined start, non-intersecting spokes' ;
+  rdf:_2 'Patterned twined start, intersecting layered spokes' ;
+  rdf:_3 'Patterned twined start, intersecting plaited spokes' ;
+  rdf:_4 'Patterned twined start, intersecting interwoven spokes' ;
 ] .
 :twinedStart common:displayOrder 3 .
 

@@ -26,6 +26,8 @@ OWL_ObjectProperty = OWL['ObjectProperty']
 RDF_Property = RDF['Property']
 RDFS_Class = RDFS['Class']
 
+def get_object_label(object_uri):
+  return "unknown"
 
 def seq_to_json(graphs, cg_uri, ug_uri, subject_uri, predicates=None, schema=None):
 
@@ -80,7 +82,7 @@ WHERE {{
           obj_json = object_to_json(graphs, cg_uri, ug_uri, object_uri)
 
       else:
-        obj_json = {'id': object_uri}
+        obj_json = {'id': object_uri, 'label': get_object_label(object_uri)}
 
     elif obj_data_type == 'bnode':
       
@@ -140,9 +142,13 @@ WHERE {{
         literal = calendar.timegm(datetime.timetuple())
       elif datatype == 'http://www.w3.org/2001/XMLSchema#integer':
         literal = int(result['object']['value'])
+      elif datatype == 'http://www.w3.org/2001/XMLSchema#decimal':
+        literal = float(result['object']['value'])
       else:
         literal = result['object']['value']
+
       propDict[result['predicate']['value']] = Literal(literal)
+
     elif obj_data_type == 'uri':
       propDict[result['predicate']['value']] = URIRef(result['object']['value'])
     elif obj_data_type == 'bnode':
@@ -152,7 +158,7 @@ WHERE {{
 
 
   # get the type so we can get the schema
-  type_uri = propDict.get(str(RDF['type']))
+  type_uri = propDict.get(str(RDF_type))
 
   if not type_uri:
     raise Exception('Missing require RDF[\'type\']')
@@ -166,7 +172,10 @@ WHERE {{
     if type(obj) == Literal:
       objData[pred] = str(obj)
     elif type(obj) == URIRef:
-      objData[pred] = str(obj)
+      # TODO: I don't believe this is correct for objects that are marked as embedded -- need to return the full object definition
+      predSchema = lookup.get(pred)
+      embed = predSchema.get('embed', False) if predSchema else False
+      objData[pred] = {'id': str(obj), 'label': get_object_label(str(obj))}
     elif type(obj) == BNode:
       predSchema = lookup.get(pred)
       typeUri = str(predSchema['type'])
@@ -237,7 +246,7 @@ def _insert_triple_frag(graphs, predicate, obj_json, pred_metadata):
 
   # special case for rdf['type']
   if predicate == str(RDF_type):
-    frag = '<{0}> <{1}>'.format(predicate, obj_json)
+    frag = '<{0}> <{1}>'.format(predicate, obj_json['id'])
     
   # literal data
   elif pred_type == str(OWL_DatatypeProperty) or pred_type == str(RDF_Property):
@@ -317,10 +326,14 @@ def _insert_object_frag(graphs, predicate, obj_json):
   po_data = obj_json.get('data', {})
   
   # determine class of object
-  type_uri = po_data.get(str(RDF_type))
-  if not type_uri:
+  type_obj = po_data.get(str(RDF_type))
+  if not type_obj:
     raise Exception("Missing require RDF['type']")
   
+  type_uri = type_obj.get('id')
+  if not type_uri:
+    raise Exception("Missing require RDF['type'] id property")
+    
   # describe the type
   schema, lookup = get_schema_and_lookup_for(graphs, type_uri)
   
@@ -354,9 +367,10 @@ def _update_triple_frag(sg_uri, ug_uri, subject, predicate, new_json, existing_o
   # based on the type determine if the object has changed
 
   if predicate == str(RDF_type):
-    if new_json != existing_obj:
+    new_type_uri = new_json['id']
+    if new_type_uri != existing_obj:
       print("rdf:type update")
-      obj_update = '<' + new_json + '>'
+      obj_update = '<' + new_type_uri + '>'
 
   # literal data
   elif pred_type == str(OWL_DatatypeProperty) or pred_type == str(RDF_Property):
@@ -423,10 +437,15 @@ def update_from_json(graphs, ug_uri, sg_uri, subject, jsonObj):
   po_data.pop(str(COMMON['createTime']), None)
   po_data.pop(str(COMMON['updateTime']), None)
   
-  # determine class of subject
-  type_str = po_data.get(str(RDF_type))
-  if not type_str:
+  # determine class of subject; date must have a type predicate
+  # which must have an 'id' property
+  type_obj = po_data.get(str(RDF_type))
+  if not type_obj:
     raise Exception("Missing require RDF['type']")
+
+  type_str = type_obj.get('id')
+  if not type_str:
+    raise Exception("Missing require RDF['type'] id property")
 
   # query the graph for subject's existing predicates/objects.
   template = '''

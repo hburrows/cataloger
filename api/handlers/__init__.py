@@ -30,7 +30,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX common: <{common}>
-SELECT ?property ?label ?range ?type ?comment ?embed ?enum
+SELECT ?property ?label ?range ?type ?comment ?embed ?bnode ?enum 
 {graphs}
 WHERE
 {{
@@ -41,6 +41,7 @@ WHERE
   OPTIONAL {{ ?property rdfs:comment ?comment . }}
   OPTIONAL {{ ?property common:displayOrder ?order . }}
   OPTIONAL {{ ?property common:embed ?embed . }}
+  OPTIONAL {{ ?property common:bnode ?bnode . }}
   OPTIONAL {{ ?property common:enumeration ?enum }}
   FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
 }}
@@ -66,6 +67,9 @@ ORDER BY (?order)'''
 
     if 'embed' in result:
       propertyDict['embed'] = result['embed']['value']
+
+    if 'bnode' in result:
+      propertyDict['bnode'] = result['bnode']['value']
 
     if 'enum' in result:
       template = '''
@@ -116,7 +120,6 @@ WHERE
   ?property rdfs:domain <{domain}> ;
             rdf:type ?type
   OPTIONAL {{ ?property rdfs:range ?range }}
-  OPTIONAL {{ ?property common:embed ?embed . }}
   FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
 }}'''
 
@@ -128,8 +131,7 @@ WHERE
     properties.append({
       'property': result['property']['value'],
       'range': result['range']['value'] if 'range' in result else None,
-      'type': result['type']['value'],
-      'embed': result['embed']['value'] if 'embed' in result else False
+      'type': result['type']['value']
     })
 
   return {

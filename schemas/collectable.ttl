@@ -48,7 +48,7 @@
 :Collectable rdfs:label 'Item' .
 :Collectable rdfs:comment 'A physical item that you collect and has valuation, acquire price, acquire data, etc.' .
 :Collectable common:isDefinedBy 'catalogit' .
-:Collectable common:isUsedFor 'primary' .
+:Collectable common:isUsedFor 'secondary' .
 
 dc:title rdfs:domain :Collectable .
 dc:title common:displayOrder 1 .
@@ -61,27 +61,41 @@ dc:description common:displayOrder 2 .
 :aquireDate rdfs:domain :Collectable .
 :aquireDate rdfs:range xsd:dateTime .
 :aquireDate rdfs:label 'Acquire Date' .
-:aquireDate rdfs:comment 'Date the item was acquired.' .
+:aquireDate rdfs:comment 'Date the item was acquired' .
 
 :aquirePrice rdf:type owl:DatatypeProperty .
 :aquirePrice common:displayOrder 4 .
 :aquirePrice rdfs:domain :Collectable .
 :aquirePrice rdfs:range xsd:decimal .
 :aquirePrice rdfs:label 'Acquire Price' .
-:aquirePrice rdfs:comment 'Cost to acquire the item.' .
+:aquirePrice rdfs:comment 'Cost to acquire the item' .
+
+:condition rdf:type owl:DatatypeProperty .
+:condition rdfs:label 'Condition' .
+:condition rdfs:comment 'Physical condition of the item' .
+:condition rdfs:domain :Collectable .
+:condition rdfs:range xsd:string .
+:condition common:enumeration [
+	rdf:_1 'New' ;
+	rdf:_2 'Excellent' ;
+	rdf:_3 'Good' ;
+	rdf:_4 'Fair' ;
+	rdf:_5 'Poor' ;
+] .
+:condition common:displayOrder 5 .
 
 :valuationOn rdf:type owl:ObjectProperty .
-:valuationOn common:displayOrder 5 .
 :valuationOn rdfs:domain :Collectable .
 :valuationOn rdfs:range :Valuation .
 :valuationOn rdfs:label 'Valuation' .
 :valuationOn rdfs:comment 'Value of the item on a certain date.' .
-:valuationOn common:embed true .
+:valuationOn common:bnode true .
+:valuationOn common:displayOrder 6 .
 
 :notes rdf:type owl:DatatypeProperty .
-:notes common:displayOrder 6 .
 :notes rdfs:domain :Collectable .
 :notes rdfs:range xsd:string .
 :notes rdfs:label 'Notes' .
 :notes rdfs:comment 'General notes.' .
+:notes common:displayOrder 7 .
 
