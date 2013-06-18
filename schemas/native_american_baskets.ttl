@@ -7,6 +7,8 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix dcmi: <http://purl.org/dc/dcmitype/> .
 
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
 @prefix common: <http://example.com/rdf/schemas/> .
 @prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
 @prefix natam: <http://example.com/rdf/schemas/community/native_american/> .
@@ -27,21 +29,21 @@
 
 :width rdf:type owl:DatatypeProperty .
 :width rdfs:domain :Dimension .
-:width rdfs:range xsd:integer .
+:width rdfs:range xsd:decimal .
 :width rdfs:label 'Width' .
 :width rdfs:comment 'Width of basket.' .
 
 :height rdf:type owl:DatatypeProperty .
 :height rdfs:domain :Dimension .
-:height rdfs:range xsd:integer .
+:height rdfs:range xsd:decimal .
 :height rdfs:label 'Height' .
 :height rdfs:comment 'Height of basket.' .
 
 :length rdf:type owl:DatatypeProperty .
 :length rdfs:domain :Dimension .
-:length rdfs:range xsd:integer .
-:height rdfs:label 'Length' .
-:height rdfs:comment 'Length of basket (applicable to oval baskets).' .
+:length rdfs:range xsd:decimal .
+:length rdfs:label 'Length' .
+:length rdfs:comment 'Length of basket (applicable to oval baskets).' .
 
 #
 # Material and subclasses
@@ -139,6 +141,12 @@
 :basketRegion rdfs:range natam:Region .
 :basketRegion rdfs:label 'Region' .
 :basketRegion rdfs:comment 'Region the basket is from' .
+
+:basketWeaver rdf:type owl:ObjectProperty .
+:basketWeaver rdfs:domain :Basket .
+:basketWeaver rdfs:range foaf:Person .
+:basketWeaver rdfs:label 'Weaver' .
+:basketWeaver rdfs:comment 'The person that wove the basket' .
 
 #
 # Coiled classes

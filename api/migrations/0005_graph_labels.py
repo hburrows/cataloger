@@ -28,6 +28,9 @@ class Migration(DataMigration):
         g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/baskets/native_american/');
         g.label = "Native American Baskets"
         g.save()
+        g = orm.Graph.objects.get(graph_uri='http://example.com/rdf/schemas/community/china/tea_pots/');
+        g.label = "Tea Pots"
+        g.save()
 
 
     def backwards(self, orm):

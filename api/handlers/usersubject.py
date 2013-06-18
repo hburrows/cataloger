@@ -4,9 +4,7 @@ Created on Apr 26, 2013
 @author: howard
 '''
 
-import calendar
 
-import dateutil.parser
 from piston.handler import BaseHandler
 from piston.utils import rc
 

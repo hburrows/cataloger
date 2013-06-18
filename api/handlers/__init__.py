@@ -32,7 +32,6 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX common: <{common}>
 SELECT ?property ?label ?range ?type ?comment ?embed ?bnode ?enum 
 {graphs}
-WHERE
 {{
   ?property rdfs:domain <{domain}> ;
             rdf:type ?type .

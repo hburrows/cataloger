@@ -102,9 +102,8 @@ WHERE {{
 
     objData.append(obj_json)
 
-  return objData
-
-
+  return {'data': objData}
+  
 
 def object_to_json(graphs, cg_uri, ug_uri, entry_uri, predicates=None):
 

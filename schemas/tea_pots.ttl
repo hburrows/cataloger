@@ -1,0 +1,119 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcmi: <http://purl.org/dc/dcmitype/> .
+
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+@prefix common: <http://example.com/rdf/schemas/> .
+@prefix collectable: <http://example.com/rdf/schemas/community/collectable/> .
+
+
+@prefix : <http://example.com/rdf/schemas/community/china/tea_pots/> .
+
+
+#
+# Dimension
+#
+
+:Dimension rdf:type owl:Class .
+:Dimension rdfs:label 'Dimensions' .
+:Dimension rdfs:comment 'Width and height of tea pot' .
+:Dimension rdfs:isDefinedBy 'catalogit' .
+:Dimension common:isUsedFor 'secondary' .
+
+:width rdf:type owl:DatatypeProperty .
+:width rdfs:domain :Dimension .
+:width rdfs:range xsd:decimal .
+:width rdfs:label 'Width' .
+:width rdfs:comment 'Width of tea pot.' .
+
+:height rdf:type owl:DatatypeProperty .
+:height rdfs:domain :Dimension .
+:height rdfs:range xsd:decimal .
+:height rdfs:label 'Height' .
+:height rdfs:comment 'Height of tea pot.' .
+
+#
+# Material and subclasses
+#
+
+:Material rdf:type owl:Class .
+:Material rdfs:label 'Material' .
+:Material rdfs:comment 'Material used in tea pot' .
+:Material rdfs:isDefinedBy 'catalogit' .
+:Material common:isUsedFor 'secondary' .
+
+:Porcelain rdf:type owl:Class .
+:Porcelain rdfs:label 'Porcelain' .
+:Porcelain rdfs:comment 'Porcelain' .
+:Porcelain rdfs:subClassOf :Material .
+:Porcelain rdfs:isDefinedBy 'catalogit' .
+:Porcelain common:isUsedFor 'secondary' .
+
+:Ceramic rdf:type owl:Class .
+:Ceramic rdfs:label 'Ceramic' .
+:Ceramic rdfs:comment 'Ceramic' .
+:Ceramic rdfs:subClassOf :Material .
+:Ceramic rdfs:isDefinedBy 'catalogit' .
+:Ceramic common:isUsedFor 'secondary' .
+
+:Yixing rdf:type owl:Class .
+:Yixing rdfs:label 'Yixing clay' .
+:Yixing rdfs:comment 'Yixing clay' .
+:Yixing rdfs:subClassOf :Material .
+:Yixing rdfs:isDefinedBy 'catalogit' .
+:Yixing common:isUsedFor 'secondary' .
+
+:GlazedYixing rdf:type owl:Class .
+:GlazedYixing rdfs:label 'Yixing clay with glazed interior' .
+:GlazedYixing rdfs:comment 'Yixing clay with glazed interior' .
+:GlazedYixing rdfs:subClassOf :Material .
+:GlazedYixing rdfs:isDefinedBy 'catalogit' .
+:GlazedYixing common:isUsedFor 'secondary' .
+
+#
+# TeaPot
+#
+:TeaPot rdf:type owl:Class .
+:TeaPot rdfs:label 'Tea Pot' .
+:TeaPot rdfs:comment 'Tea Pot' .
+:TeaPot rdfs:subClassOf collectable:Collectable .
+:TeaPot rdfs:isDefinedBy 'catalogit' .
+:TeaPot common:isUsedFor 'primary' .
+
+#:teaPotMaterial rdf:type rdf:Seq .
+#:teaPotMaterial rdfs:domain :TeaPot .
+#:teaPotMaterial rdfs:range :Material .
+#:teaPotMaterial rdfs:label 'Materials' .
+#:teaPotMaterial rdfs:comment 'Material tea pot is made from' .
+
+:teaPotMaterial rdf:type owl:DatatypeProperty .
+:teaPotMaterial rdfs:domain :TeaPot .
+:teaPotMaterial rdfs:range xsd:string .
+:teaPotMaterial rdfs:label 'Material' .
+:teaPotMaterial rdfs:comment 'Material tea pot is made from' .
+:teaPotMaterial common:enumeration [
+  rdf:_1 'Porcelain' ;
+  rdf:_2 'Ceramic' ;
+  rdf:_3 'Yixing clay' ; 
+  rdf:_4 'Yixing clay with glazed interior' ;
+] .
+
+:teaPotDimensions rdf:type owl:ObjectProperty .
+:teaPotDimensions rdfs:domain :TeaPot .
+:teaPotDimensions rdfs:range :Dimension .
+:teaPotDimensions rdfs:label 'Dimension' .
+:teaPotDimensions rdfs:comment 'Dimensions of the tea pot' .
+:teaPotDimensions common:bnode true .
+
+:teaPotMaker rdf:type owl:ObjectProperty .
+:teaPotMaker rdfs:domain :TeaPot .
+:teaPotMaker rdfs:range foaf:Person .
+:teaPotMaker rdfs:label 'Artist/Manufacturer' .
+:teaPotMaker rdfs:comment 'The person/manufacturer of the tea pot' .
+

@@ -114,3 +114,10 @@ dc:description rdfs:domain :Region .
 :Pipe rdfs:isDefinedBy 'catalogit' .
 :Pipe common:isUsedFor 'primary' .
 
+:Pottery rdf:type owl:Class .
+:Pottery rdfs:subClassOf :Item .
+:Pottery rdfs:label 'Pottery' .
+:Pottery rdfs:comment 'Native american pottery' .
+:Pottery common:isDefinedBy 'catalogit' .
+:Pottery rdfs:isDefinedBy 'catalogit' .
+:Pottery common:isUsedFor 'primary' .

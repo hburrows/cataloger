@@ -96,6 +96,6 @@ dc:description common:displayOrder 2 .
 :notes rdfs:domain :Collectable .
 :notes rdfs:range xsd:string .
 :notes rdfs:label 'Notes' .
-:notes rdfs:comment 'General notes.' .
+:notes rdfs:comment 'General notes about the entry.' .
 :notes common:displayOrder 7 .
 

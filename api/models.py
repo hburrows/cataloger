@@ -10,7 +10,7 @@ from storages.backends.s3boto import S3BotoStorage
 
 from . import USER_GRAPH_URI, REQUIRED_VOCABULARIES, DEFAULT_VOCABULARIES
 
-THUMBNAIL_SIZE = (60,60)
+THUMBNAIL_SIZE = (80,80)
 
 
 # registry of graph IRIs
@@ -51,15 +51,15 @@ def usersave_handler(sender, **kwargs):
     prof.save()
 
 
-# parent class of any "subject" that needs existance outside the triple store
+# Abstract parent class of any "subject" that needs existance outside the triple store
 #
 class Subject(models.Model):
   user = models.ForeignKey(User)
 
   def to_json_obj(self):
     return {'id': self.id,
-            'user_id': self.user.id,
-            'graphUri': str(USER_GRAPH_URI).format(userId=self.id)}
+            'uri': str(USER_GRAPH_URI).format(userId=self.id),
+            'user_id': self.user.id}
 
 
 # Image and supporting functionality
