@@ -33,6 +33,19 @@ g = sg
 USER = Namespace(str(USER_GRAPH_URI).format(userId=2))
 ug = Graph(store, identifier=URIRef(USER))
 
+
+#
+#  query for all graphs
+#
+query = '''
+SELECT DISTINCT ?g 
+WHERE
+{
+  GRAPH ?g {?s ?p ?o }
+}
+'''
+  
+
 # query for all classes
 #
 rs = g.query(
@@ -234,17 +247,6 @@ for s, type_label, e in citg.query(query):
   print s, ', ', type_label, ', ', e
 
 
-#
-#  query all graphs
-#
-query = '''
-SELECT DISTINCT ?g 
-WHERE
-{
-  GRAPH ?g {?s ?p ?o }
-}
-'''
-  
 for g in citg.query(query):
   print g
 

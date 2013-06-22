@@ -181,14 +181,19 @@ ORDER BY DESC(?createTime)
     try:
       body_obj = json.loads(request.body)
       
-      if not body_obj.get('id'):
-        resp = rc.BAD_REQUEST
-        resp.write('.  Missing required \'id\' property')
-        return resp
-
     except:
       resp = rc.BAD_REQUEST
       resp.write('.  Error parsing JSON')
+      return resp
+
+    if not body_obj.get('id'):
+      resp = rc.BAD_REQUEST
+      resp.write('.  Missing required \'id\' property')
+      return resp
+
+    if body_obj['id'] != entry_id:
+      resp = rc.BAD_REQUEST
+      resp.write('.  Arguments don\'t match payload')
       return resp
 
     try:
@@ -207,14 +212,21 @@ ORDER BY DESC(?createTime)
 
     return result
 
-  def delete(self, request, user_id, entry_id):
+  def delete(self, request, user_id, entry_id=None):
   
     # fix-up "self" user
     if user_id.lower() == 'self':
       user_id = request.user.id
-    
-    # can only delete your own entries
-    if not request.user.is_superuser and int(user_id) != request.user.id:
-      return rc.FORBIDDEN
-    
-    return {}
+
+    USER = Namespace(str(USER_GRAPH_URI).format(userId=user_id))
+      
+    if entry_id:
+      # can only delete your own entries
+      if not request.user.is_superuser and int(user_id) != request.user.id:
+        return rc.FORBIDDEN
+  
+      rdfutils.delete(sparql_froms_for_user(request.user), USER, COMMON_GRAPH_URI, entry_id)
+    else:
+      rdfutils.delete_graph(USER)
+
+    return rc.DELETED

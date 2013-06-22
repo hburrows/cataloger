@@ -3,6 +3,8 @@ Created on Apr 3, 2013
 
 @author: howard
 '''
+
+import json
 import numbers
 from datetime import datetime
 import calendar
@@ -213,9 +215,12 @@ WHERE {{
 '''
 
 def _delete_triple(ug_uri, subject, predicate, obj):
-  # delete the triple and any recursively attached
+  # delete the triple and anything recursively attached
   # to object of triple
   # ??? TODO recursively delete
+
+  # log delete activity
+  print "_delete_triple: subject: " + subject + "; predicate: " + predicate + "; json: " + json.dumps(obj, sort_keys=True)
 
   # atomic data
   if type(obj) == Literal:
@@ -240,6 +245,9 @@ def _insert_triple_frag(graphs, predicate, obj_json, pred_metadata):
   frag = None
 
   pred_type = str(pred_metadata['type']) if pred_metadata else None
+
+  # log insert activity
+  print "_insert_triple_frag: predicate: " + predicate + "; json: " + json.dumps(obj_json, sort_keys=True)
 
   # switch on how to interpret the data
 
@@ -363,6 +371,9 @@ def _update_triple_frag(sg_uri, ug_uri, subject, predicate, new_json, existing_o
   # determine update if any based on predicate type
   pred_type = str(pred_metadata['type']) if pred_metadata else None
 
+  # log update activity
+  print "_update_triple_frag: predicate: " + predicate + "; json: " + json.dumps(new_json, sort_keys=True)
+
   # based on the type determine if the object has changed
 
   if predicate == str(RDF_type):
@@ -376,7 +387,7 @@ def _update_triple_frag(sg_uri, ug_uri, subject, predicate, new_json, existing_o
     # s p o .
     if isinstance(new_json, basestring):
       if new_json != existing_obj:
-        print(predicate + "; literal:string update")
+        # print(predicate + "; literal:string update")
         obj_update = '"' + new_json + '"'
     elif isinstance(new_json, numbers.Number):
       if str(new_json) != existing_obj:
@@ -472,6 +483,7 @@ WHERE {{
 
   insert_frags = []
   update_frags = []
+  delete_frags = []
 
   # handle the insert/update for createTime and updateTime properties specially
   if str(COMMON['createTime']) not in existingProps:
@@ -550,5 +562,38 @@ PREFIX common: <{cg_uri}>
   delete_frags = []
   for predicate, obj in existingProps.iteritems():
     _delete_triple(ug_uri, subject, predicate, obj)
+
+  return
+
+'''
+   MAIN delete driver
+'''
+def delete(graphs, ug_uri, sg_uri, subject):
+  print "delete " + subject
+
+  template = '''
+DELETE WHERE {{ 
+  GRAPH <{ug_uri}> {{
+    <{subject}> ?p ?o
+  }}
+}}
+'''
+  ru = template.format(subject=subject, ug_uri=ug_uri)
+
+  sparql_update(ru)
+
+  return
+
+def delete_graph(ug_uri):
+  
+  print "clearing graph: " + ug_uri
+
+  template = '''
+CLEAR GRAPH <{ug_uri}>
+'''
+
+  ru = template.format(ug_uri=ug_uri)
+
+  sparql_update(ru)
 
   return
