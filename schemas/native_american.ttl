@@ -73,6 +73,9 @@ dc:description rdfs:domain :Region .
 :Item common:isUsedFor 'secondary' .
 
 
+#
+# Sub classes of native american :Item
+#
 
 :Rug rdf:type owl:Class .
 :Rug rdfs:subClassOf :Item .

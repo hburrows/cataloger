@@ -11,7 +11,7 @@ from piston.utils import rc
 from rdflib import Namespace, RDF
 from api import COMMON_GRAPH_URI, USER_GRAPH_URI
 
-from . import sparql_query, SCHEMA, sparql_froms_for_user
+from . import sparql_query, SCHEMA, sparql_graphs_for_user
 
 import rdfutils
 
@@ -42,7 +42,7 @@ class SubjectEntryHandler(BaseHandler):
       
       if subject_id:
 
-        result = rdfutils.object_to_json(sparql_froms_for_user(request.user), COMMON_GRAPH_URI, USER, subject_id)
+        result = rdfutils.object_to_json(sparql_graphs_for_user(request.user), COMMON_GRAPH_URI, USER, subject_id)
 
       else:
 
@@ -57,26 +57,27 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX : <{ug}>
 SELECT ?s ?class ?title ?description
-{graphs}
-FROM :
 {{
-  {{
-    <{type}> rdfs:label ?classLabel .
-    BIND (<{type}> AS ?class)
+  GRAPH ?g {{
+    {{
+      <{type}> rdfs:label ?classLabel .
+      BIND (<{type}> AS ?class)
+    }}
+    UNION
+    {{
+      ?class rdfs:subClassOf+ <{type}> .
+      ?class rdfs:label ?classLabel .
+    }}
+    ?class rdfs:isDefinedBy 'catalogit' .
+    ?s rdf:type ?class .
+    OPTIONAL {{ ?s dc:title ?title }}             
+    OPTIONAL {{ ?s dc:description ?description }}  
   }}
-  UNION
-  {{
-    ?class rdfs:subClassOf+ <{type}> .
-    ?class rdfs:label ?classLabel .
-  }}
-  ?class rdfs:isDefinedBy 'catalogit' .
-  ?s rdf:type ?class .
-  OPTIONAL {{ ?s dc:title ?title }}             
-  OPTIONAL {{ ?s dc:description ?description }}             
+  FILTER (?g IN ({graphs}))           
 }}
 ORDER BY ?class ?title'''
 
-          rq = rq_tmpl.format(graphs=sparql_froms_for_user(request.user), type=root_type_uri, ug=USER)
+          rq = rq_tmpl.format(graphs=sparql_graphs_for_user(request.user), type=root_type_uri, ug=USER)
 
         else:
           root_type_uri = SCHEMA['Entry']
@@ -87,18 +88,19 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX : <{ug}>
 SELECT ?s ?class ?title ?description
-{graphs}
-FROM :
 {{
-  ?class rdfs:label ?classLabel .
-  ?class rdfs:isDefinedBy 'catalogit' .
-  ?s rdf:type ?class .
-  OPTIONAL {{ ?s dc:title ?title }}             
-  OPTIONAL {{ ?s dc:description ?description }}             
+  GRAPH ?g {{
+    ?class rdfs:label ?classLabel .
+    ?class rdfs:isDefinedBy 'catalogit' .
+    ?s rdf:type ?class .
+    OPTIONAL {{ ?s dc:title ?title }}             
+    OPTIONAL {{ ?s dc:description ?description }}
+  }}
+  FILTER (?g IN ({graphs}))             
 }}
 ORDER BY ?class ?title'''
 
-          rq = rq_tmpl.format(graphs=sparql_froms_for_user(request.user), type=root_type_uri, ug=USER)
+          rq = rq_tmpl.format(graphs=sparql_graphs_for_user(request.user), type=root_type_uri, ug=USER)
 
         result = [{'id': t['s']['value'],
                    'data': {

@@ -1,0 +1,26 @@
+# sdb.ttl
+
+# Store description file for catalogit's MySQL
+
+@prefix sdb:     <http://jena.hpl.hp.com/2007/sdb#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+
+# MySQL - InnoDB
+
+
+<#store> rdf:type sdb:Store ;
+    sdb:layout     "layout2" ;
+    sdb:connection <#conn> ;
+    sdb:engine     "InnoDB" ;      # MySQL specific
+.
+
+<#conn> rdf:type sdb:SDBConnection ;
+    sdb:sdbType       "mysql" ;    # Needed for JDBC URL
+    sdb:sdbHost       "localhost" ;
+    sdb:sdbName       "cit_sdb" ;
+    sdb:sdbUser       "howard";
+    sdb:sdbPassword   "d#vel0p";
+    sdb:driver        "com.mysql.jdbc.Driver" ;
+    .

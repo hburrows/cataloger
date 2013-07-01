@@ -22,7 +22,7 @@ from api import USER_GRAPH_URI, COMMON_GRAPH_URI
 from api.models import Image as ImageModel, THUMBNAIL_SIZE
 from api.forms import ImageForm
 
-from . import sparql_update, sparql_froms_for_user
+from . import sparql_update, sparql_graphs_for_user
 
 import rdfutils
 
@@ -142,8 +142,16 @@ INSERT DATA {{
 
     sparql_update(ru)
 
-    return rdfutils.object_to_json(sparql_froms_for_user(request.user), COMMON_GRAPH_URI, str(USER), USER[subject_uuid])
+    json = None
+    try:
+      json = rdfutils.object_to_json(sparql_graphs_for_user(request.user), COMMON_GRAPH_URI, str(USER), USER[subject_uuid])
   
+    except Exception, e:
+      print e
+      raise e
+    
+    return json;
+
   def update(self, request, user_id, entry_id, image_id):
   
     # fix-up "self" user

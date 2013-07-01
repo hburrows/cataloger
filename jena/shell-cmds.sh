@@ -1,0 +1,1 @@
+sdbconfig --sdb=sdb.ttl --create

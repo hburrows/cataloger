@@ -464,7 +464,6 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX : <{ug_uri}>
 SELECT ?p ?o
-FROM NAMED <{ug_uri}>
 WHERE {{
   GRAPH : {{
     <{subject}> ?p ?o .
@@ -569,6 +568,9 @@ PREFIX common: <{cg_uri}>
    MAIN delete driver
 '''
 def delete(graphs, ug_uri, sg_uri, subject):
+
+  # TODO: Need to recursively delete bnodes and also delete any images associated with entry
+  # The images current get IDed but not delete
   print "delete " + subject
 
   template = '''

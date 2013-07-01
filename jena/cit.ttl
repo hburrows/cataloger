@@ -1,0 +1,161 @@
+@prefix :        <#> .
+@prefix fuseki:  <http://jena.apache.org/fuseki#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb:     <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix ja:      <http://jena.hpl.hp.com/2005/11/Assembler#> .
+@prefix sdb:     <http://jena.hpl.hp.com/2007/sdb#> .
+
+[] rdf:type fuseki:Server ;
+   # Timeout - server-wide default: milliseconds.
+   # Format 1: "1000" -- 1 second timeout
+   # Format 2: "10000,60000" -- 10s timeout to first result, then 60s timeout to for rest of query.
+   # See java doc for ARQ.queryTimeout
+   # ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "10000" ] ;
+   # ja:loadClass "your.code.Class" ;
+
+   fuseki:services (
+     <#tdb_rw>
+     <#reasoning_tdb_rw>
+     <#mysql_rw>
+     <#equix_tdb_rw>
+   ) .
+
+
+## -----
+## TDB support
+
+tdb:DatasetTDB  rdfs:subClassOf  ja:RDFDataset .
+tdb:GraphTDB    rdfs:subClassOf  ja:Model .
+
+## ---------------------------------------------------------------
+## Updatable TDB dataset with R/W services enabled.
+
+<#tdb_rw> rdf:type fuseki:Service ;
+    rdfs:label                      "TDB Service (RW)" ;
+    fuseki:name                     "cit_tdb" ;
+    fuseki:serviceQuery             "query" ;
+    fuseki:serviceQuery             "sparql" ;
+    fuseki:serviceUpdate            "update" ;
+    fuseki:serviceUpload            "upload" ;
+    fuseki:dataset                  <#tdb_dataset> ;
+    .
+
+<#tdb_dataset> rdf:type      tdb:DatasetTDB ;
+    tdb:location "/Users/howard/dev/catalogit/cataloger/stores/cit_tdb" ;
+##     # Query timeout on this dataset (milliseconds)
+##     ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "1000" ] ;
+##     # Default graph for query is the (read-only) union of all named graphs.
+     .
+
+
+## ---------------------------------------------------------------
+# Updatable, inferencing TDB data with R/W service enabled 
+
+<#reasoning_tdb_rw>  rdf:type fuseki:Service ;
+  rdfs:label                      "Reasoning TDB Service (RW)" ;
+  fuseki:name                     "cit_reasoning_tdb" ;
+  fuseki:serviceQuery             "query" ;
+  fuseki:serviceQuery             "sparql" ;
+  fuseki:serviceUpdate            "update" ;
+  fuseki:serviceUpload            "upload" ;
+  fuseki:dataset                  <#tdb_reasoning_dataset> ;
+  .
+
+<#tdb_reasoning_dataset> rdf:type ja:RDFDataset ;
+  ja:defaultGraph <#tdb_reasoning_model>; 
+  .         
+
+<#tdb_reasoning_model> a ja:InfModel ;
+  ja:baseModel <#tdb_reasoning_graph> ;
+  ja:reasoner [
+    ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLFBRuleReasoner>
+  ] ;
+  .
+
+<#tdb_reasoning_graph> rdf:type tdb:GraphTDB ;
+  tdb:location "/Users/howard/dev/catalogit/cataloger/stores/cit_reasoning_tdb" ;
+  .
+
+## ---------------------------------------------------------------
+# EquiX update-able and inferencing TDB data with R/W service enabled 
+
+<#equix_tdb_rw>  rdf:type fuseki:Service ;
+  rdfs:label                      "EquiX Reasoning TDB Service (RW)" ;
+  fuseki:name                     "equix" ;
+  fuseki:serviceQuery             "query" ;
+  fuseki:serviceQuery             "sparql" ;
+  fuseki:serviceUpdate            "update" ;
+  fuseki:serviceUpload            "upload" ;
+  fuseki:dataset                  <#equix_dataset> ;
+  .
+
+<#equix_dataset> rdf:type ja:RDFDataset ;
+
+  ja:defaultGraph      <#equix_model>; 
+
+  ja:namedGraph [
+    ja:graphName      <http://example.com/rdf/test/> ;
+    ja:graph          <#equix_model> ] ;
+  ja:namedGraph [
+    ja:graphName      <http://example.com/rdf/vendors/1/> ;
+    ja:graph          <#equix_model> ] ;
+  ja:namedGraph [
+    ja:graphName      <http://example.com/rdf/vendors/2/> ;
+    ja:graph          <#equix_model> ] ;
+  .         
+
+<#equix_model> a ja:InfModel ;
+  ja:baseModel <#equix_graph> ;
+  ja:reasoner [
+    #ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLFBRuleReasoner>
+    ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLMicroFBRuleReasoner>
+    #ja:reasonerURL <http://jena.hpl.hp.com/2003/OWLMiniFBRuleReasoner>
+    #ja:reasonerURL <http://jena.hpl.hp.com/2003/TransitiveReasoner>
+  ] ;
+  .
+
+<#equix_graph> rdf:type tdb:GraphTDB ;
+  tdb:location "/Users/howard/dev/catalogit/cataloger/stores/eqx_reasoning_tdb" ;
+  .
+
+
+
+
+## --------------------------
+## SDB Config
+
+## Configure and initialize SDB.
+[] ja:loadClass "com.hp.hpl.jena.sdb.SDB" .
+
+## Declare that sdb:DatasetStore is an implementation of ja:RDFDataset .
+sdb:DatasetStore rdfs:subClassOf ja:RDFDataset .
+
+########################################################################
+#SDB / Mysql - doesn't work with inferencing
+
+<#mysql_rw> rdf:type fuseki:Service ;
+  rdfs:label               "MySQL Service (RW)" ;
+  fuseki:name              "cit_mysql" ;
+  fuseki:serviceQuery      "query" ;
+  fuseki:serviceQuery      "sparql" ;
+  fuseki:serviceUpdate     "update" ;
+  fuseki:serviceUpload     "upload" ;
+  fuseki:dataset           <#mysql_dataset> ;
+  .
+
+<#mysql_dataset> rdf:type sdb:DatasetStore ;
+  sdb:store <#mysql_store> .
+
+<#mysql_store> rdf:type sdb:Store  ;
+  rdfs:label "SDB MySQL" ;
+  sdb:layout "layout2" ;
+  sdb:connection
+  [  rdf:type sdb:SDBConnection ;
+     sdb:sdbType        "MySQL" ;
+     sdb:sdbHost        "localhost" ;
+     sdb:sdbName        "cit_sdb" ;
+     sdb:sdbUser        "howard";
+     sdb:sdbPassword    "d#vel0p";
+  ]
+  .

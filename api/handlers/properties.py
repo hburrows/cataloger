@@ -7,7 +7,7 @@ Created on Mar 8, 2013
 from piston.handler import BaseHandler
 from piston.utils import rc
 
-from . import get_full_schema_for, sparql_froms_for_user
+from . import get_full_schema_for, sparql_graphs_for_user
 
 class PropertiesHandler(BaseHandler):
 
@@ -19,9 +19,11 @@ class PropertiesHandler(BaseHandler):
 
     try:
 
-      result = get_full_schema_for(sparql_froms_for_user(request.user), class_id)
+      result = get_full_schema_for(sparql_graphs_for_user(request.user), class_id)
 
     except Exception, e:
+      import traceback
+      print traceback.format_exc()
       raise e
 
     return result

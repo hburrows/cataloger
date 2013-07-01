@@ -21,7 +21,12 @@ SCHEMA = Namespace(SCHEMA_GRAPH_URI)
 def sparql_froms_for_user(user):
   return ' '.join(['FROM <' + g.graph_uri + '>' for g in user.userprofile.graphs.all()])
 
+def sparql_graphs_for_user(user):
+  return ','.join(['<' + g.graph_uri + '>' for g in user.userprofile.graphs.all()])
+  
 def get_full_json(graphs, uriRef, label, comment):
+
+  # TODO: this would be much cleaner with FROM but can't get it to work with jena and sdb
 
   # create a list of properties
 
@@ -31,18 +36,28 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX common: <{common}>
 SELECT ?property ?label ?range ?type ?comment ?embed ?bnode ?enum 
-{graphs}
 {{
-  ?property rdfs:domain <{domain}> ;
-            rdf:type ?type .
-  OPTIONAL {{ ?property rdfs:range ?range . }}
-  OPTIONAL {{ ?property rdfs:label ?label . }}
-  OPTIONAL {{ ?property rdfs:comment ?comment . }}
-  OPTIONAL {{ ?property common:displayOrder ?order . }}
-  OPTIONAL {{ ?property common:embed ?embed . }}
-  OPTIONAL {{ ?property common:bnode ?bnode . }}
-  OPTIONAL {{ ?property common:enumeration ?enum }}
-  FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
+  # get all properties for the class based on 'domain' relationship
+  {{
+    GRAPH ?g1 {{
+      ?property rdfs:domain <{domain}>
+    }}
+   FILTER (?g1 IN ({graphs}))
+  }}
+  # the actual property definitions might be in a different graph
+  # so need to use a different active graph
+  GRAPH ?g2 {{
+    ?property rdf:type ?type .
+    OPTIONAL {{ ?property rdfs:range ?range . }}
+    OPTIONAL {{ ?property rdfs:label ?label . }}
+    OPTIONAL {{ ?property rdfs:comment ?comment . }}
+    OPTIONAL {{ ?property common:displayOrder ?order . }}
+    OPTIONAL {{ ?property common:embed ?embed . }}
+    OPTIONAL {{ ?property common:bnode ?bnode . }}
+    OPTIONAL {{ ?property common:enumeration ?enum }}
+    FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property))
+  }}
+  FILTER (?g2 IN ({graphs}))
 }}
 ORDER BY (?order)'''
 
@@ -74,10 +89,12 @@ ORDER BY (?order)'''
       template = '''
 PREFIX common: <{common}>
 SELECT ?idx ?value
-{graphs}
 WHERE
 {{
-  <{property}> common:enumeration [ ?idx ?value ] ;
+  GRAPH ?g {{
+    <{property}> common:enumeration [ ?idx ?value ] ;
+  }}
+  FILTER (?g IN ({graphs}))
 }}'''
 
       rq = template.format(graphs=graphs, common=SCHEMA_GRAPH_URI, property=propertyId)
@@ -90,22 +107,18 @@ WHERE
 
     properties.append(propertyDict)
 
-#   t1 = time()
-#   print(str(t1 - t0))
-
   result = {
     'id': uriRef,
     'name': label,
     'comment': comment,
     'properties': properties }
   
-#   t2 = time()
-#   print(str(t2 - t1))
-
   return result
 
 def get_base_json(graphs, uriRef, label, comment):
 
+  # TODO: would be better with SPARQL FROM but can't get it to work with jena and sdb
+  
   # create a list of properties
   template = '''
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -113,13 +126,23 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX common: <{common}>
 SELECT ?property ?range ?type
-{graphs}
 WHERE
 {{
-  ?property rdfs:domain <{domain}> ;
-            rdf:type ?type
-  OPTIONAL {{ ?property rdfs:range ?range }}
-  FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property)) 
+  # get all properties for the class based on 'domain' relationship
+  {{
+    GRAPH ?g1 {{
+      ?property rdfs:domain <{domain}>
+    }}
+    FILTER (?g1 IN ({graphs}))
+  }}
+  # the actual property definitions might be in a different graph
+  # so need to use a different active graph
+  GRAPH ?g2 {{
+    ?property rdf:type ?type
+    OPTIONAL {{ ?property rdfs:range ?range }}
+    FILTER (?type IN (owl:DatatypeProperty, owl:ObjectProperty, rdf:Seq, rdf:Property))
+  }}
+  FILTER (?g2 IN ({graphs}))
 }}'''
 
   rq = template.format(graphs=graphs, common=SCHEMA_GRAPH_URI, domain=uriRef)
@@ -141,14 +164,28 @@ WHERE
 # output everything about the super classes
 def dump_supers(graphs, subURI, l, formatter):
 
+  # TODO: Using SPARQL FROM would probably work better but can't get it to work with Jena and sdb
+  
   rq_tmpl = '''
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT DISTINCT ?s ?super ?label ?comment
-{graphs}
+SELECT DISTINCT ?super ?label ?comment
 {{
-  <{sub_uri}> rdfs:subClassOf ?super
-  OPTIONAL {{ ?super rdfs:label ?label }}
-  OPTIONAL {{ ?super rdfs:comment ?comment }}
+  {{
+    # get super class information
+    GRAPH ?g {{
+      <{sub_uri}> rdfs:subClassOf ?super
+    }}
+    FILTER (?g IN ({graphs}))
+  }}
+  # query for super class information in any graph since it's not
+  # not necessarily in the active graph
+  GRAPH ?g2 {{
+    ?super rdf:type ?t
+    OPTIONAL {{ ?super rdfs:label ?label }}
+    OPTIONAL {{ ?super rdfs:comment ?comment }}
+  }}
+  FILTER (?g2 IN ({graphs}))
 }}
 '''
   rq = rq_tmpl.format(graphs=graphs, sub_uri=subURI)
@@ -175,12 +212,16 @@ SELECT DISTINCT ?s ?super ?label ?comment
 def get_class_info(graphs, classURI):
 
   rq_tmpl = '''
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?label ?comment
-{graphs}
+SELECT ?label ?comment ?t
 WHERE {{
-  OPTIONAL {{ <{class_uri}> rdfs:label ?label }}
-  OPTIONAL {{ <{class_uri}> rdfs:comment ?comment }}
+  GRAPH ?g {{
+    <{class_uri}> rdf:type ?t
+    OPTIONAL {{ <{class_uri}> rdfs:label ?label }}
+    OPTIONAL {{ <{class_uri}> rdfs:comment ?comment }}
+  }}
+  FILTER (?g IN ({graphs}))
 }}
 '''
   rq = rq_tmpl.format(graphs=graphs, class_uri=classURI)
@@ -198,7 +239,8 @@ WHERE {{
 
 
 def get_full_schema_for(graphs, classURI):
-  print "Getting full schema for ", classURI
+  
+  print "Getting full schema for " + classURI
 
   label, comment = get_class_info(graphs, classURI)
       
